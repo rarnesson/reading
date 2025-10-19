@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lärarsida – Läsförståelse</title>
+  <link rel="stylesheet" href="teacher.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="topbar">
+    <h1>📚 Läsförståelse – Lärarsida</h1>
+    <div class="filter">
+      <label for="classSelect">Klass:</label>
+      <select id="classSelect"></select>
+    </div>
+  </div>
+
+  <div class="table-scroll">
+    <table id="resultsTable">
+      <thead>
+        <tr id="headerRow">
+          <!-- Byggs i JS: [Elev] [Totalt rätt] [1] [2] [3] ... -->
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <script src="teacher.js"></script>
+</body>
+</html>

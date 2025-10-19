@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Läsförståelse – Mattematchen Läs 🧠</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: url("bg.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: #222;
+    }
+
+    .banner {
+      background: rgba(255,255,255,0.9);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #007bff;
+      font-weight: 600;
+    }
+
+    .reading-container {
+      position: relative;
+      max-width: 750px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      color: #007bff;
+      margin-top: 0;
+      text-align: center;
+    }
+
+    #readingText p {
+      line-height: 1.6;
+      margin-bottom: 1em;
+    }
+
+    #question {
+      margin-top: 1.5em;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+
+    .answer-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #5c7cfa, #364fc7);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .answer-btn:hover {
+      transform: scale(1.03);
+      background: linear-gradient(135deg, #4b64e3, #2f44b2);
+    }
+
+    .main-btn {
+      display: block;
+      margin: 20px auto 0;
+      background: #198754;
+      border: none;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+
+    .main-btn:hover {
+      background: #146c43;
+    }
+
+    /* 🏷️ Kategoritaggen */
+    .category-tag {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: #f1f1f1;
+      color: #333;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 0.85em;
+      opacity: 0.8;
+    }
+
+    /* 💬 Popup-overlay */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
+
+    .popup-box {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      max-width: 320px;
+    }
+
+    .popup-box h2 {
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+
+  </style>
+
+  <!-- 🔥 Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
+
+  <!-- 💾 Logik -->
+  <script src="reading.js" defer></script>
+</head>
+<body>
+
+  <div class="banner">
+    <div>📚 Poäng: <span id="score">0</span></div>
+    <div>🎯 Träffsäkerhet: <span id="accuracy">0%</span></div>
+    <div>✅ Klara texter: <span id="cleared">0</span></div>
+  </div>
+
+  <div class="reading-container">
+    <div id="textCategory" class="category-tag"></div>
+    <h2 id="textTitle">Läser in...</h2>
+
+    <div id="readingText"></div>
+
+    <div id="questionArea">
+      <p id="question"></p>
+      <div id="answers"></div>
+      <p style="text-align:center; font-size:0.9em; margin-top:1em;">
+        Fråga <span id="qNum">0</span> / <span id="qTotal">0</span>
+      </p>
+    </div>
+  </div>
+
+</body>
+</html>
