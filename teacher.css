@@ -129,4 +129,26 @@
   .table-scroll::-webkit-scrollbar-thumb:hover {
     background: #b0bec5;
   }
+  .actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  #resetBtn,
+  .actions button {
+    padding: 8px 14px;
+    border: none;
+    background: #dc2626;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  
+  #resetBtn:hover,
+  .actions button:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+  }
   

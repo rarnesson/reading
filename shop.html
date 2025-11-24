@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Affären – Läsförståelse</title>
+
+  <!-- Egen CSS för affären -->
+  <link rel="stylesheet" href="shop.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
+
+  <!-- Shop-logik -->
+  <script src="shop.js" defer></script>
+</head>
+<body>
+  <div class="shop-page">
+    <header class="shop-header">
+      <div class="shop-title">
+        🛒 Läsaffären
+        <span class="shop-subtitle">Handla för dina läspoäng</span>
+      </div>
+
+      <div class="shop-user-box">
+        <div id="studentName" class="shop-user-name">Elev</div>
+        <div id="studentClass" class="shop-user-class">Klass</div>
+        <div class="shop-user-points">
+          💰 Dina Coins:
+          <span id="studentPoints">0</span>
+        </div>
+        <button class="back-btn" onclick="window.location.href='reading.html'">
+          ⬅ Tillbaka till läsningen
+        </button>
+      </div>
+    </header>
+
+    <!-- Klassens poäng och mål -->
+    <section class="class-section">
+      <h2>🏫 Klassens poäng</h2>
+      <div class="class-points">
+        Klassens poäng: <span id="classPoints">0</span>
+      </div>
+      
+      <p class="goal-list">
+        🎮 <strong>Minecraft/Roblox-lektion</strong> vid <strong>3000</strong> poäng •
+        🎂 <strong>Fika</strong> vid <strong>6000</strong> poäng
+      </p>
+      
+      <div class="progress-wrapper">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+          <div class="progress-marker marker1">
+            <span>Roblox/Minecraft<br>3000p</span>
+          </div>
+          <div class="progress-marker marker2">
+            <span>Fika<br>6000p</span>
+          </div>
+        </div>
+      </div>
+      
+      
+      <p id="nextGoalText" class="next-goal-text"></p>
+      
+    </section>
+
+    <!-- Produkter -->
+    <section class="items-section">
+      <h2>🎁 Saker du kan köpa</h2>
+      <div id="itemsContainer" class="items-grid">
+        <!-- Fylls av shop.js -->
+      </div>
+      <p id="shopMessage" class="shop-message"></p>
+    </section>
+  </div>
+</body>
+</html>

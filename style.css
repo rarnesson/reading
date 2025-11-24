@@ -161,4 +161,24 @@ body.bg {
   .popup-box h2 {
     margin-bottom: 10px;
   }
+  .shop-btn {
+    margin-left: 10px;
+    padding: 5px 12px;
+    background: #ff9f1c;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  
+  .shop-btn:hover {
+    transform: scale(1.12);
+    background: #ff7f0e;
+  }
+  .coins-box {
+    font-weight: 700;
+    color: #b45309; /* varm guldig brun */
+  }
   
