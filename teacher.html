@@ -11,6 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
 </head>
 <body>
+
   <div class="topbar">
     <h1>📚 Läsförståelse – Lärarsida</h1>
 
@@ -19,23 +20,26 @@
       <select id="classSelect"></select>
     </div>
 
-    <!-- 🔁 Nollställningsknapp + affär -->
     <div class="actions">
       <button id="resetBtn">Nollställ statistik</button>
       <button onclick="window.location.href='owner.html'">Affär – lärarvy</button>
     </div>
   </div>
 
-  <div class="table-scroll">
-    <table id="resultsTable">
-      <thead>
-        <tr id="headerRow">
-          <!-- Byggs i JS: [Elev] [Totalt rätt] [1] [2] [3] ... -->
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
+  <!-- Wrapper så tabellen inte hamnar bakom scrollbaren -->
+  <div class="table-wrapper">
+    <div id="tableScroll" class="table-scroll">
+      <table id="resultsTable">
+        <thead>
+          <tr id="headerRow"></tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
   </div>
+
+  <!-- Sticky scrollbar -->
+  <div id="stickyScroll" class="sticky-scroll"></div>
 
   <script src="teacher.js"></script>
 </body>

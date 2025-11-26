@@ -11,13 +11,30 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// --- DOM ---
 const classSelect = document.getElementById("classSelect");
 const tableBody = document.getElementById("tableBody");
 const headerRow = document.getElementById("headerRow");
 const resetBtn = document.getElementById("resetBtn");
 
-const DEFAULT_TEXT_COLUMNS = 30;
+const tableScroll = document.getElementById("tableScroll");
+const stickyScroll = document.getElementById("stickyScroll");
 
+
+// Hur många kolumner max (siffror)
+const DEFAULT_TEXT_COLUMNS = 40;
+
+
+// 🔄 Sync mellan övre och nedre scroll
+tableScroll.addEventListener("scroll", () => {
+  stickyScroll.scrollLeft = tableScroll.scrollLeft;
+});
+stickyScroll.addEventListener("scroll", () => {
+  tableScroll.scrollLeft = stickyScroll.scrollLeft;
+});
+
+
+// 🎨 Färglogik
 function cellClass(p) {
   if (p === undefined || p === null) return "gray";
   if (p >= 80) return "green";
@@ -25,22 +42,32 @@ function cellClass(p) {
   return "red";
 }
 
-function calcTotal(textStats) {
-  const vals = Object.values(textStats || {});
-  const totalTexts = vals.length;
-  const avg = totalTexts ? Math.round(vals.reduce((a, b) => a + b, 0) / totalTexts) : 0;
-  const passed = vals.filter(v => v >= 60).length;
-  return { totalTexts, avg, passed };
+
+// 📊 Beräkna totalsnitt (alternativ A)
+function computeTotalPercent(textStats) {
+  const values = Object.values(textStats || {});
+  if (!values.length) return 0;
+
+  const sum = values.reduce((a, b) => a + b, 0);
+  return Math.round(sum / values.length);
 }
 
-// --- parse "file.textIndex_Title" ELLER "file_Title"
+
+// 🔍 Nyckelparser (1.2_Titel)
 function parseKey(key) {
-  // fångar 12.3_Titel  eller  12_Titel
   const m = key.match(/^(\d+)(?:\.(\d+))?_(.+)$/);
   if (!m) return { file: 9999, idx: 9999, title: key };
-  return { file: +m[1], idx: m[2] ? +m[2] : null, title: m[3] };
+  return {
+    file: Number(m[1]),
+    idx: m[2] ? Number(m[2]) : 0,
+    title: m[3]
+  };
 }
 
+
+// -----------------------------------------------------
+// 🔥 Ladda klasser
+// -----------------------------------------------------
 async function loadClasses() {
   const snap = await db.collection("readingResults").get();
   const all = snap.docs.map(d => d.data());
@@ -59,73 +86,89 @@ async function loadClasses() {
 }
 
 classSelect.addEventListener("change", () => loadClassResults(classSelect.value));
-resetBtn.addEventListener("click", resetClassStats);
 
+
+// -----------------------------------------------------
+// 🔥 Ladda resultat för vald klass
+// -----------------------------------------------------
 async function loadClassResults(selectedClass) {
   tableBody.innerHTML = "";
-  buildHeader([]); // clear
+  headerRow.innerHTML = "";
 
   const snap = await db
     .collection("readingResults")
     .where("klass", "==", selectedClass)
     .get();
+
   const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   if (!rows.length) {
-    tableBody.innerHTML = `<tr><td class="name-col sticky">Inga elever hittades.</td></tr>`;
+    tableBody.innerHTML =
+      `<tr><td class="name-col sticky">Inga elever hittades.</td></tr>`;
     return;
   }
 
-  // 1) Samla alla nycklar (unika texter)
+  // ---------------------
+  // 1) Samla alla textnycklar
+  // ---------------------
   const allKeys = new Set();
-  rows.forEach(r =>
-    Object.keys(r.textStats || {}).forEach(k => allKeys.add(k))
-  );
+  rows.forEach(r => {
+    Object.keys(r.textStats || {}).forEach(k => allKeys.add(k));
+  });
 
-  // 2) Sortera nycklar stabilt: (file asc, idx asc om finns annars titel asc)
+  // ---------------------
+  // 2) Sortera kolumnerna
+  // ---------------------
   const orderedKeys = Array.from(allKeys).sort((a, b) => {
-    const A = parseKey(a),
-      B = parseKey(b);
+    const A = parseKey(a);
+    const B = parseKey(b);
+
     if (A.file !== B.file) return A.file - B.file;
-    if (A.idx !== null && B.idx !== null && A.idx !== B.idx)
-      return A.idx - B.idx;
-    if (A.idx !== null && B.idx === null) return -1;
-    if (A.idx === null && B.idx !== null) return 1;
+    if (A.idx !== B.idx) return A.idx - B.idx;
+
     return A.title.localeCompare(B.title, "sv");
   });
 
-  // 3) Bestäm kolumnantal (fyll ut till DEFAULT om färre)
+  // ---------------------
+  // 3) Begränsa kolumnantal
+  // ---------------------
   const colCount = Math.max(DEFAULT_TEXT_COLUMNS, orderedKeys.length);
-  buildHeader(
-    // siffror i headern
-    new Array(colCount).fill(0).map((_, i) => i + 1),
-    // tooltips per kolumn (title)
-    orderedKeys.map(k => parseKey(k).title)
-  );
 
+  buildHeader(colCount, orderedKeys);
+
+  // ---------------------
   // 4) Bygg rader
+  // ---------------------
   rows.sort((a, b) => a.namn.localeCompare(b.namn, "sv"));
+
   tableBody.innerHTML = "";
 
   rows.forEach(r => {
     const tr = document.createElement("tr");
 
-    // Namn (sticky)
+    // 📌 1) Elev
     const tdName = document.createElement("td");
     tdName.className = "name-col sticky";
-    tdName.textContent = r.namn || r.id;
+    tdName.textContent = r.namn;
     tr.appendChild(tdName);
 
-    // Totalt
-    const totals = calcTotal(r.textStats || {});
-    const tdTotal = document.createElement("td");
-    tdTotal.className = "total-col";
-    tdTotal.textContent = `${totals.passed}/${totals.totalTexts} (${totals.avg}%)`;
-    tr.appendChild(tdTotal);
+    // 📌 2) TOTAL RÄTT (hämtas direkt)
+    const tdTotalCorrect = document.createElement("td");
+    tdTotalCorrect.className = "total-correct";
+    tdTotalCorrect.textContent = r.totalCorrectAnswers ?? 0;
+    tr.appendChild(tdTotalCorrect);
 
-    // Textceller enligt orderedKeys; fyll ut grå
+    // 📌 3) TOTAL SNITTPROCENT
+    const percent = computeTotalPercent(r.textStats || {});
+    const tdTotalPercent = document.createElement("td");
+    tdTotalPercent.className = "total-percent";
+    tdTotalPercent.textContent = percent + "%";
+    tr.appendChild(tdTotalPercent);
+
+    // 📌 4) TEXTKOLUMNER
     for (let i = 0; i < colCount; i++) {
       const td = document.createElement("td");
       td.className = "text-col";
+
       const div = document.createElement("div");
       div.className = "cell";
 
@@ -135,12 +178,10 @@ async function loadClassResults(selectedClass) {
         const title = parseKey(key).title;
 
         div.classList.add(cellClass(p));
-        div.title = `${title}${p != null ? `: ${Math.round(p)}%` : ""}`;
-        div.textContent = p != null ? Math.round(p) : "";
+        div.title = `${title}${p != null ? `: ${p}%` : ""}`;
+        div.textContent = p != null ? p : "";
       } else {
         div.classList.add("gray");
-        div.title = "Ej gjort";
-        div.textContent = "";
       }
 
       td.appendChild(div);
@@ -149,10 +190,16 @@ async function loadClassResults(selectedClass) {
 
     tableBody.appendChild(tr);
   });
+
+  // efter render → gör sticky scrollbar lika bred
+  updateStickyScrollbar();
 }
 
-// Header: [Elev] [Totalt rätt] [1][2][3]...
-function buildHeader(numbers, tooltips = []) {
+
+// -----------------------------------------------------
+// 📌 Bygg header
+// -----------------------------------------------------
+function buildHeader(colCount, orderedKeys) {
   headerRow.innerHTML = "";
 
   const thName = document.createElement("th");
@@ -160,26 +207,40 @@ function buildHeader(numbers, tooltips = []) {
   thName.textContent = "Elev";
   headerRow.appendChild(thName);
 
-  const thTotal = document.createElement("th");
-  thTotal.className = "total-col";
-  thTotal.textContent = "Totalt rätt";
-  headerRow.appendChild(thTotal);
+  const thTotCorr = document.createElement("th");
+  thTotCorr.className = "total-correct";
+  thTotCorr.textContent = "Totalt rätt";
+  headerRow.appendChild(thTotCorr);
 
-  numbers =
-    numbers.length
-      ? numbers
-      : new Array(DEFAULT_TEXT_COLUMNS).fill(0).map((_, i) => i + 1);
+  const thTotPct = document.createElement("th");
+  thTotPct.className = "total-percent";
+  thTotPct.textContent = "Total %";
+  headerRow.appendChild(thTotPct);
 
-  numbers.forEach((n, i) => {
+  for (let i = 0; i < colCount; i++) {
     const th = document.createElement("th");
     th.className = "text-col";
-    th.textContent = n;
-    if (tooltips[i]) th.title = tooltips[i];
+    th.textContent = i + 1;
+    if (i < orderedKeys.length) {
+      const title = parseKey(orderedKeys[i]).title;
+      th.title = title;
+    }
     headerRow.appendChild(th);
-  });
+  }
 }
 
-// 🔁 Nollställ statistik för vald klass (lösenord: "arnesson")
+
+// -----------------------------------------------------
+// 📌 Justera sticky scrollbar-bredd
+// -----------------------------------------------------
+function updateStickyScrollbar() {
+  stickyScroll.innerHTML = `<div style="width:${tableScroll.scrollWidth}px; height:1px;"></div>`;
+}
+
+
+// -----------------------------------------------------
+// 🔁 Nollställ statistik
+// -----------------------------------------------------
 async function resetClassStats() {
   const selectedClass = classSelect.value;
   if (!selectedClass) {
@@ -188,51 +249,40 @@ async function resetClassStats() {
   }
 
   const pwd = prompt("Lösenord för att nollställa statistiken:");
-  if (pwd === null) return; // avbröt
+  if (!pwd) return;
   if (pwd !== "arnesson") {
     alert("Fel lösenord.");
     return;
   }
 
-  const sure = confirm(
-    `Är du säker på att du vill nollställa all statistik för klassen ${selectedClass}? ` +
-    `Detta går inte att ångra.`
-  );
+  const sure = confirm("Vill du verkligen nollställa all statistik?");
   if (!sure) return;
 
-  try {
-    const snap = await db
-      .collection("readingResults")
-      .where("klass", "==", selectedClass)
-      .get();
+  const snap = await db
+    .collection("readingResults")
+    .where("klass", "==", selectedClass)
+    .get();
 
-    if (snap.empty) {
-      alert("Inga elever hittades för den här klassen.");
-      return;
-    }
+  const batch = db.batch();
 
-    const batch = db.batch();
-
-    snap.forEach(doc => {
-      batch.update(doc.ref, {
-        poang: 0,
-        texter: 0,
-        textStats: {},
-        currentTextIndex: 0,
-        currentQuestionIndex: 0,
-        textsFileIndex: 1,
-        senaste: null
-      });
+  snap.forEach(doc => {
+    batch.update(doc.ref, {
+      poang: 0,
+      totalCorrectAnswers: 0,
+      textStats: {},
+      texter: 0,
+      currentTextIndex: 0,
+      currentQuestionIndex: 0,
+      textsFileIndex: 1,
+      senaste: null
     });
+  });
 
-    await batch.commit();
-
-    alert(`Statistiken för ${selectedClass} är nollställd.`);
-    await loadClassResults(selectedClass);
-  } catch (err) {
-    console.error("Fel vid nollställning:", err);
-    alert("Något gick fel när statistiken skulle nollställas.");
-  }
+  await batch.commit();
+  alert("Statistik nollställd.");
+  loadClassResults(selectedClass);
 }
 
+
+// 🚀 Starta
 loadClasses();
