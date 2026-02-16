@@ -137,10 +137,14 @@ body {
   }
   
   .marker1 {
-    left: 50%;
+    left: 30%;
   }
   
   .marker2 {
+    left: 70%;
+  }
+  
+  .marker3 {
     right: 0;
     transform: translateX(50%);
   }

@@ -1,14 +1,4 @@
-// 🔥 Firebase init
-const firebaseConfig = {
-  apiKey: "AIzaSyCX9KeqxAmspG2hm4y161WPJxp2fn3LMug",
-  authDomain: "mattematchen.firebaseapp.com",
-  projectId: "mattematchen",
-  storageBucket: "mattematchen.firebasestorage.app",
-  messagingSenderId: "808790642635",
-  appId: "1:808790642635:web:58b84df432b85af6f9b04e",
-  measurementId: "G-GRYPBKH54R"
-};
-firebase.initializeApp(firebaseConfig);
+// 🔥 Firebase (init i firebase-config.js)
 const db = firebase.firestore();
 
 // --- DOM ---
@@ -86,6 +76,7 @@ async function loadClasses() {
 }
 
 classSelect.addEventListener("change", () => loadClassResults(classSelect.value));
+resetBtn.addEventListener("click", resetClassStats);
 
 
 // -----------------------------------------------------
@@ -268,6 +259,7 @@ async function resetClassStats() {
   snap.forEach(doc => {
     batch.update(doc.ref, {
       poang: 0,
+      coins: 0,
       totalCorrectAnswers: 0,
       textStats: {},
       texter: 0,

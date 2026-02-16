@@ -1,16 +1,6 @@
 // --------------------------------------------------------
-// 🔥 Firebase init
+// 🔥 Firebase (init i firebase-config.js)
 // --------------------------------------------------------
-const firebaseConfig = {
-  apiKey: "AIzaSyCX9KeqxAmspG2hm4y161WPJxp2fn3LMug",
-  authDomain: "mattematchen.firebaseapp.com",
-  projectId: "mattematchen",
-  storageBucket: "mattematchen.firebasestorage.app",
-  messagingSenderId: "808790642635",
-  appId: "1:808790642635:web:58b84df432b85af6f9b04e",
-  measurementId: "G-GRYPBKH54R"
-};
-firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // --------------------------------------------------------
@@ -75,12 +65,27 @@ async function loadProgress() {
     textsFileIndex = data.textsFileIndex ?? 1;
   }
 
-  document.getElementById("score").textContent = totalCorrectAnswers;
-  document.getElementById("coins").textContent = coins;
-  document.getElementById("cleared").textContent = cleared;
-
+  updateBannerStats();
   loadClassPoints();
   await loadTextsFile(textsFileIndex);
+}
+
+// --------------------------------------------------------
+// 📊 Uppdatera banner (poäng, coins, träffsäkerhet, klara)
+// --------------------------------------------------------
+function updateBannerStats() {
+  const scoreEl = document.getElementById("score");
+  const coinsEl = document.getElementById("coins");
+  const clearedEl = document.getElementById("cleared");
+  const accuracyEl = document.getElementById("accuracy");
+  if (scoreEl) scoreEl.textContent = totalCorrectAnswers;
+  if (coinsEl) coinsEl.textContent = coins;
+  if (clearedEl) clearedEl.textContent = cleared;
+  if (accuracyEl) {
+    accuracyEl.textContent = totalAnswers > 0
+      ? Math.round((rightAnswers / totalAnswers) * 100) + "%"
+      : "0%";
+  }
 }
 
 // --------------------------------------------------------
@@ -139,8 +144,9 @@ function loadText() {
   currentText = currentTexts[currentTextIndex];
 
   document.getElementById("textTitle").textContent = currentText.title;
+  const escaped = (currentText.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   document.getElementById("readingText").innerHTML =
-    `<p>${currentText.text.replace(/\n/g, "</p><p>")}</p>`;
+    escaped.split(/\n/).map((p) => `<p>${p}</p>`).join("");
   document.getElementById("textCategory").textContent = currentText.category || "";
 
   questions = currentText.questions || [];
@@ -204,6 +210,7 @@ async function checkAnswer(isCorrect) {
 
   currentQuestionIndex++;
   await saveResult(false);
+  updateBannerStats();
 
   if (currentQuestionIndex < questions.length) showQuestion();
   else showFeedbackPopup();
@@ -213,10 +220,11 @@ async function checkAnswer(isCorrect) {
 // 💬 Popup vid textslut
 // --------------------------------------------------------
 function showFeedbackPopup() {
-  const percent = Math.round((textRight / textTotal) * 100);
+  const textTotalSafe = textTotal || 1;
+  const percent = Math.round((textRight / textTotalSafe) * 100);
   const passed = percent >= 65;
 
-  saveTextStats(currentText.title, percent);
+  if (currentText && textTotal > 0) saveTextStats(currentText.title, percent);
 
   const overlay = document.createElement("div");
   overlay.className = "popup-overlay";
@@ -246,13 +254,12 @@ function showFeedbackPopup() {
 
     updateClassPoints(gain);
 
-    document.getElementById("coins").textContent = coins;
-    document.getElementById("score").textContent = totalCorrectAnswers;
+    updateBannerStats();
 
     document.getElementById("nextTextBtn").onclick = async () => {
       document.body.removeChild(overlay);
       cleared++;
-      document.getElementById("cleared").textContent = cleared;
+      updateBannerStats();
       currentTextIndex++;
       currentQuestionIndex = 0;
       await saveResult(false);
