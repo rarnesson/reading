@@ -100,7 +100,8 @@ function loadTextsFile(index) {
 
     const script = document.createElement("script");
     script.id = "textsScript";
-    script.src = `texts/texts${index}.js`;
+    // Cache-bust så att nyinlagda texter (t.ex. texts9.js) laddas även om 404 cachats
+    script.src = `texts/texts${index}.js?v=2`;
 
     script.onload = () => {
       const arr = window.__texts;
@@ -372,6 +373,7 @@ function allTextsDone() {
     <h2>🎉 Alla texter klara!</h2>
     <p>Totalt antal rätt: <strong>${totalCorrectAnswers}</strong></p>
     <p>Coins kvar: <strong>${coins}</strong></p>
+    <button class="main-btn" onclick="window.location.reload()" style="margin-right:8px;">🔄 Kolla efter fler texter</button>
     <button class="main-btn" onclick="window.location.href='index.html'">Tillbaka</button>
   `;
   saveResult(true);

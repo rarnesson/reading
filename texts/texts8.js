@@ -370,6 +370,140 @@ window.__texts = [
       { q: "Vad betyder ordet 'klätterställning'?", a: ["En sorts papperskorg", "En lekställning man kan klättra på", "En fotbollssko", "En typ av bokhylla"], correct: 1 },
       { q: "Vad betyder att Arvin 'flämtade' när han kom upp?", a: ["Att han skrattade tyst", "Att han knappt hade någon luft kvar och andades häftigt", "Att han somnade", "Att han viskade"], correct: 1 }
     ]
+  },
+
+  /* =========================================================
+     TEXT 13 – En ovanlig morgon i 4E
+  ========================================================= */
+  {
+    title: "En ovanlig morgon i 4E",
+    category: "Berättande text",
+    text: `Det var något som inte stämde när eleverna i 4E kom in i klassrummet den här morgonen. Bänkarna stod inte som vanligt, utan var placerade i en stor cirkel.
+
+  "Har vi samling hela dagen?" undrade Clara och tittade sig omkring.
+
+  Rasmus log hemlighetsfullt och skrev med stora bokstäver på tavlan: SAMARBETE. Han förklarade att dagen skulle handla om att lösa problem tillsammans, inte att tävla.
+
+  Vissa elever såg nyfikna ut, andra lite osäkra. Omar lutade sig bakåt på stolen och viskade: "Det här blir nog svårare än matteprov."
+
+  Men efter första uppgiften märkte klassen att något hade förändrats. Fler vågade säga vad de tänkte, och ingen skrattade när någon svarade fel.`,
+    questions: [
+      { q: "Hur stod bänkarna i klassrummet?", a: ["I rader", "I par", "I en cirkel", "Uppställda längs väggen"], correct: 2 },
+      { q: "Vad skrev Rasmus på tavlan?", a: ["Mattematchen", "Samarbete", "Prov", "Läsförståelse"], correct: 1 },
+      { q: "Vad handlade dagen om?", a: ["Att tävla", "Att arbeta tyst", "Att samarbeta", "Att skriva prov"], correct: 2 },
+      { q: "Varför tror du att vissa elever såg osäkra ut?", a: ["De var trötta", "De visste inte vad som skulle hända", "De ville gå hem", "De gillade inte varandra"], correct: 1 },
+      { q: "Vad menas med att 'ingen skrattade när någon svarade fel'?", a: ["Alla var tysta", "Alla var rädda", "Stämningen var trygg", "Läraren var sträng"], correct: 2 },
+      { q: "Vad betyder 'hemlighetsfullt'?", a: ["Argt", "Som om man döljer något", "Högt", "Snabbt"], correct: 1 }
+    ]
+  },
+
+  /* =========================================================
+     TEXT 14 – Varför sover vi?
+  ========================================================= */
+  {
+    title: "Varför sover vi?",
+    category: "Faktatext",
+    text: `Alla människor behöver sova, men varför är sömn egentligen så viktig? När vi sover får kroppen vila, men hjärnan arbetar fortfarande.
+
+  Under natten sorterar hjärnan minnen från dagen. Sådant som var viktigt sparas, medan annat glöms bort. Det är därför man ofta minns bättre om man har sovit ordentligt innan ett prov.
+
+  Sömn hjälper också kroppen att växa och läka. Hos barn och unga är sömn extra viktig eftersom kroppen utvecklas snabbt.
+
+  Om man sover för lite kan man bli trött, irriterad och få svårt att koncentrera sig i skolan.`,
+    questions: [
+      { q: "Vad händer med hjärnan när vi sover?", a: ["Den stänger av", "Den blir mindre", "Den sorterar minnen", "Den glömmer allt"], correct: 2 },
+      { q: "Varför är sömn extra viktig för barn?", a: ["De är mindre", "De växer och utvecklas", "De leker mer", "De går i skolan"], correct: 1 },
+      { q: "Vad kan hända om man sover för lite?", a: ["Man blir starkare", "Man lär sig snabbare", "Man får svårt att koncentrera sig", "Man blir längre"], correct: 2 },
+      { q: "Varför kan sömn hjälpa inför prov?", a: ["För att man fuskar", "För att hjärnan sparar minnen", "För att proven blir lättare", "För att man slipper gå upp tidigt"], correct: 1 },
+      { q: "Vad betyder 'koncentrera sig'?", a: ["Att leka", "Att tänka på många saker", "Att fokusera på en sak", "Att vila"], correct: 2 }
+    ]
+  },
+
+  /* =========================================================
+     TEXT 15 – Ett meddelande i klasschatten
+  ========================================================= */
+  {
+    title: "Ett meddelande i klasschatten",
+    category: "Dialog / digital text",
+    text: `På kvällen plingade det till i klasschatten.
+
+  Erik: "Är det någon som fattar uppgift 4?"
+  Leia: "Tror man ska förklara hur man tänker, inte bara svaret."
+  Erik: "Aha… då har jag nog gjort fel."
+  Anna: "Det är lugnt, jag gjorde också om den två gånger."
+
+  Efter några minuter hade flera elever skickat bilder och förklaringar. Erik skrev till slut:
+  "Nu fattar jag. Tack allihop!"
+
+  Leia log när hon lade ifrån sig surfplattan. Det kändes bra att kunna hjälpa någon.`,
+    questions: [
+      { q: "Vad handlade uppgift 4 om enligt Leia?", a: ["Att räkna snabbt", "Att gissa", "Att förklara hur man tänker", "Att skriva långt"], correct: 2 },
+      { q: "Hur reagerade Erik när han förstod?", a: ["Han blev arg", "Han gav upp", "Han tackade", "Han slutade skriva"], correct: 2 },
+      { q: "Vad visar chatten om klassen?", a: ["De tävlar mot varandra", "De hjälper varandra", "De bråkar ofta", "De ignorerar varandra"], correct: 1 },
+      { q: "Varför log Leia i slutet?", a: ["Hon var klar tidigt", "Hon fick beröm", "Hon kände sig nöjd", "Hon var trött"], correct: 2 },
+      { q: "Vad betyder 'fattar' i texten?", a: ["Ser", "Förstår", "Läser", "Skriver"], correct: 1 }
+    ]
+  },
+
+  /* =========================================================
+     TEXT 16 – När planen ändrades
+  ========================================================= */
+  {
+    title: "När planen ändrades",
+    category: "Berättande text",
+    text: `Klassen hade sett fram emot idrott hela veckan. Men precis innan lektionen kom beskedet: gymnastiksalen var upptagen.
+
+  Ett sus av besvikelse spred sig i klassrummet. Några suckade högt, andra slog sig ner med armarna i kors.
+
+  "Vi gör något annat," sa Rasmus lugnt. "Ibland blir det inte som man tänkt, men det betyder inte att det blir dåligt."
+
+  Istället gick klassen ut på skolgården och hade samarbetslekar. När lektionen var slut sa flera elever att det varit roligare än de hade trott.`,
+    questions: [
+      { q: "Varför blev det ingen idrott i salen?", a: ["Den var stängd", "Den var upptagen", "Den var trasig", "Läraren var sjuk"], correct: 1 },
+      { q: "Hur reagerade eleverna först?", a: ["Glatt", "Likgiltigt", "Besviket", "Förvirrat"], correct: 2 },
+      { q: "Vad menade Rasmus med att det inte behöver bli dåligt?", a: ["Att idrott är tråkigt", "Att förändringar kan bli bra", "Att eleverna ska vara tysta", "Att lektionen snart är slut"], correct: 1 },
+      { q: "Hur förändrades elevernas inställning?", a: ["De blev argare", "De brydde sig inte", "De blev mer positiva", "De gick hem"], correct: 2 },
+      { q: "Vad betyder 'besked'?", a: ["Ett meddelande", "En lek", "Ett prov", "En fråga"], correct: 0 }
+    ]
+  },
+
+  /* =========================================================
+     TEXT 17 – Så arbetar du i grupp
+  ========================================================= */
+  {
+    title: "Så arbetar du i grupp",
+    category: "Instruktion",
+    text: `När du arbetar i grupp är det viktigt att alla får vara med. Börja med att bestämma vem som gör vad, så att ingen blir utan uppgift.
+
+  Lyssna på varandras idéer, även om du inte håller med direkt. Ibland kan någon annans tanke leda till en bättre lösning.
+
+  Om ni tycker olika, försök förklara hur ni tänker istället för att bli arga. Kom ihåg att målet är att lösa uppgiften tillsammans.`,
+    questions: [
+      { q: "Vad bör gruppen göra först?", a: ["Börja jobba direkt", "Bestämma vem som gör vad", "Rösta", "Be läraren"], correct: 1 },
+      { q: "Varför ska man lyssna på alla?", a: ["För att bli klar snabbare", "För att slippa jobba", "För att få bättre lösningar", "För att det är tyst"], correct: 2 },
+      { q: "Vad kan hända om man inte delar upp arbetet?", a: ["Alla jobbar lika", "Någon kan bli utan uppgift", "Uppgiften försvinner", "Man får fler idéer"], correct: 1 },
+      { q: "Vad betyder 'mål' i texten?", a: ["En plats", "Ett betyg", "Det man vill uppnå", "En person"], correct: 2 }
+    ]
+  },
+
+  /* =========================================================
+     TEXT 18 – När Omar inte räckte upp handen
+  ========================================================= */
+  {
+    title: "När Omar inte räckte upp handen",
+    category: "Berättande text",
+    text: `Omar kunde svaret. Han var helt säker. Ändå satt han kvar med händerna i knät när Rasmus ställde frågan.
+
+  Hjärtat slog lite snabbare än vanligt. Tänk om svaret var fel ändå? Eller om någon skrattade?
+
+  När Rasmus gick vidare till nästa elev kände Omar både lättnad och besvikelse. Han visste att han hade klarat det – om han bara vågat.`,
+    questions: [
+      { q: "Varför räckte inte Omar upp handen?", a: ["Han var trött", "Han kunde inte svaret", "Han var osäker", "Han lyssnade inte"], correct: 2 },
+      { q: "Hur kände Omar sig efteråt?", a: ["Bara glad", "Arg", "Både lättad och besviken", "Stolt"], correct: 2 },
+      { q: "Vad hindrade Omar mest?", a: ["Kunskap", "Tid", "Rädsla", "Regler"], correct: 2 },
+      { q: "Vad visar texten om Omar?", a: ["Han inte bryr sig", "Han saknar kunskap", "Han tänker mycket", "Han vill störa"], correct: 2 },
+      { q: "Vad betyder 'vågat'?", a: ["Hunnit", "Förstått", "Törs", "Glömt"], correct: 2 }
+    ]
   }
 
 ];
