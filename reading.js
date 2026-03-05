@@ -11,6 +11,9 @@ const klass = localStorage.getItem("reading_class");
 if (!name || !klass) window.location.href = "index.html";
 const elevId = `${klass}_${name.trim().toLowerCase().replace(/\s+/g, "_")}`;
 
+// 📋 Fakta-läge = träna bara faktatexter (separat framsteg)
+const isFaktaMode = localStorage.getItem("reading_mode") === "fakta";
+
 // --------------------------------------------------------
 // 📊 Tillstånd
 // --------------------------------------------------------
@@ -46,7 +49,6 @@ async function loadProgress() {
     if (typeof data.coins === "number") {
       coins = data.coins;
     } else if (typeof data.poang === "number") {
-      // Import från gamla systemet första gången
       coins = data.poang;
     }
 
@@ -54,20 +56,36 @@ async function loadProgress() {
     if (typeof data.totalCorrectAnswers === "number") {
       totalCorrectAnswers = data.totalCorrectAnswers;
     } else if (typeof data.poang === "number") {
-      // Import från gamla systemet första gången
       totalCorrectAnswers = data.poang;
     }
 
-    // övrigt
-    cleared = data.texter ?? 0;
-    currentTextIndex = data.currentTextIndex ?? 0;
-    currentQuestionIndex = data.currentQuestionIndex ?? 0;
-    textsFileIndex = data.textsFileIndex ?? 1;
+    if (isFaktaMode) {
+      cleared = data.texterFakta ?? 0;
+      currentTextIndex = data.currentTextIndexFakta ?? 0;
+      currentQuestionIndex = data.currentQuestionIndexFakta ?? 0;
+    } else {
+      cleared = data.texter ?? 0;
+      currentTextIndex = data.currentTextIndex ?? 0;
+      currentQuestionIndex = data.currentQuestionIndex ?? 0;
+      textsFileIndex = data.textsFileIndex ?? 1;
+    }
   }
 
   updateBannerStats();
   loadClassPoints();
-  await loadTextsFile(textsFileIndex);
+  if (isFaktaMode) {
+    const banner = document.querySelector(".banner");
+    if (banner) {
+      const badge = document.createElement("span");
+      badge.textContent = "📋 Faktatexter";
+      badge.style.marginRight = "12px";
+      badge.style.opacity = "0.95";
+      banner.insertBefore(badge, banner.firstChild);
+    }
+    await loadTextsFileFakta();
+  } else {
+    await loadTextsFile(textsFileIndex);
+  }
 }
 
 // --------------------------------------------------------
@@ -100,7 +118,6 @@ function loadTextsFile(index) {
 
     const script = document.createElement("script");
     script.id = "textsScript";
-    // Cache-bust så att nyinlagda texter (t.ex. texts9.js) laddas även om 404 cachats
     script.src = `texts/texts${index}.js?v=2`;
 
     script.onload = () => {
@@ -131,10 +148,71 @@ function loadTextsFile(index) {
 }
 
 // --------------------------------------------------------
+// 🔀 Slumpa med fast seed – samma ordning för alla (blandade ämnen)
+// --------------------------------------------------------
+function seededShuffle(arr, seed) {
+  const a = arr.slice();
+  let s = seed;
+  const rand = () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// --------------------------------------------------------
+// 📂 Ladda faktatexter – blandad ordning mellan ämnen, samma för alla
+// --------------------------------------------------------
+function loadTextsFileFakta() {
+  return new Promise((resolve) => {
+    const old = document.getElementById("textsScript");
+    if (old) old.remove();
+    delete window.__texts;
+
+    const script = document.createElement("script");
+    script.id = "textsScript";
+    script.src = "texts/textsFakta.js?v=1";
+
+    script.onload = () => {
+      const arr = window.__texts;
+      delete window.__texts;
+
+      if (!Array.isArray(arr) || arr.length === 0) {
+        allTextsDone();
+        resolve();
+        return;
+      }
+
+      currentTexts = seededShuffle(arr, 99194853);
+      if (currentTextIndex >= currentTexts.length) currentTextIndex = 0;
+
+      saveResult(false);
+      loadText();
+      resolve();
+    };
+
+    script.onerror = () => {
+      allTextsDone();
+      resolve();
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+// --------------------------------------------------------
 // 🧠 Ladda text
 // --------------------------------------------------------
 function loadText() {
   if (currentTextIndex >= currentTexts.length) {
+    if (isFaktaMode) {
+      allTextsDone();
+      return;
+    }
     textsFileIndex++;
     currentTextIndex = 0;
     saveResult(false);
@@ -288,12 +366,18 @@ async function saveTextStats(title, percent) {
   const ref = db.collection("readingResults").doc(elevId);
   const snap = await ref.get();
   const data = snap.exists ? snap.data() : {};
-  const stats = data.textStats || {};
 
-  const textIndex = currentTextIndex + 1;
-  stats[`${textsFileIndex}.${textIndex}_${title}`] = percent;
-
-  await ref.set({ ...data, textStats: stats }, { merge: true });
+  if (isFaktaMode) {
+    const stats = data.textStatsFakta || {};
+    const textIndex = currentTextIndex + 1;
+    stats[`1.${textIndex}_${title}`] = percent;
+    await ref.set({ ...data, textStatsFakta: stats }, { merge: true });
+  } else {
+    const stats = data.textStats || {};
+    const textIndex = currentTextIndex + 1;
+    stats[`${textsFileIndex}.${textIndex}_${title}`] = percent;
+    await ref.set({ ...data, textStats: stats }, { merge: true });
+  }
 }
 
 // --------------------------------------------------------
@@ -304,15 +388,11 @@ async function saveResult(final = false) {
   const snap = await ref.get();
   const old = snap.exists ? snap.data() : {};
 
-  // SKYDD: totalCorrect får aldrig minska
   if (typeof old.totalCorrectAnswers === "number") {
     totalCorrectAnswers = Math.max(totalCorrectAnswers, old.totalCorrectAnswers);
   }
-
-  // SKYDD: coins måste få minska (shopping)
-  // men ska aldrig skrivas över av gamla poang
   if (typeof old.coins === "number") {
-    coins = coins; // använd nyaste värdet
+    coins = coins;
   }
 
   const data = {
@@ -320,17 +400,24 @@ async function saveResult(final = false) {
     klass: klass,
     coins,
     totalCorrectAnswers,
-    texter: cleared,
-    currentTextIndex,
-    currentQuestionIndex,
-    textsFileIndex,
     senaste: new Date().toISOString()
   };
+
+  if (isFaktaMode) {
+    data.texterFakta = cleared;
+    data.currentTextIndexFakta = currentTextIndex;
+    data.currentQuestionIndexFakta = currentQuestionIndex;
+  } else {
+    data.texter = cleared;
+    data.currentTextIndex = currentTextIndex;
+    data.currentQuestionIndex = currentQuestionIndex;
+    data.textsFileIndex = textsFileIndex;
+  }
 
   if (snap.exists) await ref.update(data);
   else await ref.set(data);
 
-  if (final) console.log("✔️ Alla texter klara");
+  if (final) console.log(isFaktaMode ? "✔️ Faktatexter klara" : "✔️ Alla texter klara");
 }
 
 // --------------------------------------------------------
@@ -369,11 +456,14 @@ async function updateClassPoints(amount) {
 // 🎉 Alla texter klara
 // --------------------------------------------------------
 function allTextsDone() {
+  const isFakta = isFaktaMode;
+  const title = isFakta ? "🎉 Faktatexter klara!" : "🎉 Alla texter klara!";
+  const reloadLabel = isFakta ? "Kolla efter fler faktatexter" : "Kolla efter fler texter";
   document.querySelector(".reading-container").innerHTML = `
-    <h2>🎉 Alla texter klara!</h2>
+    <h2>${title}</h2>
     <p>Totalt antal rätt: <strong>${totalCorrectAnswers}</strong></p>
     <p>Coins kvar: <strong>${coins}</strong></p>
-    <button class="main-btn" onclick="window.location.reload()" style="margin-right:8px;">🔄 Kolla efter fler texter</button>
+    <button class="main-btn" onclick="window.location.reload()" style="margin-right:8px;">🔄 ${reloadLabel}</button>
     <button class="main-btn" onclick="window.location.href='index.html'">Tillbaka</button>
   `;
   saveResult(true);

@@ -31,6 +31,39 @@ body {
   gap: 12px;
 }
 
+/* Flikar */
+.tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 16px 0;
+  background: #f1f3f5;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.tab {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #495057;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.tab:hover {
+  color: #0059ff;
+  background: rgba(0, 89, 255, 0.06);
+}
+
+.tab.active {
+  font-weight: 600;
+  color: #0059ff;
+  background: var(--sticky-bg);
+  border-bottom-color: #0059ff;
+}
+
 /* TABLE WRAPPER (ger luft så tabellen inte hamnar bakom scrollbar) */
 .table-wrapper {
   padding-bottom: 40px;
@@ -76,6 +109,39 @@ th.name-col, td.name-col {
   max-width: 130px;
   text-align: left;
   white-space: nowrap;
+}
+
+.name-cell-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.delete-student-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: #e03131;
+  color: white;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.delete-student-btn:hover {
+  background: #c92a2a;
+}
+
+.delete-student-btn:focus {
+  outline: 2px solid #e03131;
+  outline-offset: 2px;
 }
 
 /* TOTAL RÄTT */

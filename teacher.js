@@ -10,6 +10,14 @@ const resetBtn = document.getElementById("resetBtn");
 const tableScroll = document.getElementById("tableScroll");
 const stickyScroll = document.getElementById("stickyScroll");
 
+// Flikar för texttyper – enkelt att lägga till fler senare
+const TABS = [
+  { id: "normal", label: "Vanliga texter", statsKey: "textStats" },
+  { id: "fakta", label: "Faktatexter", statsKey: "textStatsFakta" }
+];
+let currentTab = "normal";
+let cachedRows = [];
+let cachedClass = "";
 
 // Hur många kolumner max (siffror)
 const DEFAULT_TEXT_COLUMNS = 40;
@@ -78,103 +86,122 @@ async function loadClasses() {
 classSelect.addEventListener("change", () => loadClassResults(classSelect.value));
 resetBtn.addEventListener("click", resetClassStats);
 
+// Flik-klick: byt tab och bygg tabell från cache (ingen ny hämtning)
+document.querySelectorAll(".tab").forEach((tabEl) => {
+  tabEl.addEventListener("click", () => {
+    const tabId = tabEl.dataset.tab;
+    if (tabId === currentTab) return;
+    currentTab = tabId;
+    document.querySelectorAll(".tab").forEach((t) => {
+      t.classList.toggle("active", t.dataset.tab === currentTab);
+      t.setAttribute("aria-selected", t.dataset.tab === currentTab ? "true" : "false");
+    });
+    buildTable(cachedRows, currentTab);
+  });
+});
+
 
 // -----------------------------------------------------
-// 🔥 Ladda resultat för vald klass
+// 🔥 Ladda resultat för vald klass (hämtar från Firebase)
 // -----------------------------------------------------
 async function loadClassResults(selectedClass) {
-  tableBody.innerHTML = "";
-  headerRow.innerHTML = "";
-
   const snap = await db
     .collection("readingResults")
     .where("klass", "==", selectedClass)
     .get();
 
-  const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  if (!rows.length) {
+  cachedRows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  cachedClass = selectedClass;
+  buildTable(cachedRows, currentTab);
+}
+
+
+// -----------------------------------------------------
+// 📊 Bygg tabell från cachade rader för vald flik
+// -----------------------------------------------------
+function buildTable(rows, tabId) {
+  tableBody.innerHTML = "";
+  headerRow.innerHTML = "";
+
+  const tabConfig = TABS.find((t) => t.id === tabId) || TABS[0];
+  const statsKey = tabConfig.statsKey;
+
+  if (!rows || !rows.length) {
     tableBody.innerHTML =
       `<tr><td class="name-col sticky">Inga elever hittades.</td></tr>`;
+    updateStickyScrollbar();
     return;
   }
 
-  // ---------------------
-  // 1) Samla alla textnycklar
-  // ---------------------
+  // 1) Samla alla textnycklar för denna tab
   const allKeys = new Set();
-  rows.forEach(r => {
-    Object.keys(r.textStats || {}).forEach(k => allKeys.add(k));
+  rows.forEach((r) => {
+    const stats = r[statsKey] || {};
+    Object.keys(stats).forEach((k) => allKeys.add(k));
   });
 
-  // ---------------------
   // 2) Sortera kolumnerna
-  // ---------------------
   const orderedKeys = Array.from(allKeys).sort((a, b) => {
     const A = parseKey(a);
     const B = parseKey(b);
-
     if (A.file !== B.file) return A.file - B.file;
     if (A.idx !== B.idx) return A.idx - B.idx;
-
     return A.title.localeCompare(B.title, "sv");
   });
 
-  // ---------------------
-  // 3) Begränsa kolumnantal
-  // ---------------------
   const colCount = Math.max(DEFAULT_TEXT_COLUMNS, orderedKeys.length);
-
   buildHeader(colCount, orderedKeys);
 
-  // ---------------------
-  // 4) Bygg rader
-  // ---------------------
-  rows.sort((a, b) => a.namn.localeCompare(b.namn, "sv"));
+  // 3) Bygg rader
+  const sortedRows = rows.slice().sort((a, b) => a.namn.localeCompare(b.namn, "sv"));
 
-  tableBody.innerHTML = "";
-
-  rows.forEach(r => {
+  sortedRows.forEach((r) => {
+    const stats = r[statsKey] || {};
     const tr = document.createElement("tr");
 
-    // 📌 1) Elev
     const tdName = document.createElement("td");
     tdName.className = "name-col sticky";
-    tdName.textContent = r.namn;
+    const nameWrap = document.createElement("span");
+    nameWrap.className = "name-cell-wrap";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "delete-student-btn";
+    deleteBtn.title = "Radera elev från statistiken";
+    deleteBtn.setAttribute("aria-label", "Radera " + r.namn);
+    deleteBtn.textContent = "✕";
+    deleteBtn.dataset.id = r.id;
+    deleteBtn.dataset.namn = r.namn;
+    nameWrap.appendChild(deleteBtn);
+    nameWrap.appendChild(document.createTextNode(" " + r.namn));
+    tdName.appendChild(nameWrap);
     tr.appendChild(tdName);
 
-    // 📌 2) TOTAL RÄTT (hämtas direkt)
     const tdTotalCorrect = document.createElement("td");
     tdTotalCorrect.className = "total-correct";
     tdTotalCorrect.textContent = r.totalCorrectAnswers ?? 0;
     tr.appendChild(tdTotalCorrect);
 
-    // 📌 3) TOTAL SNITTPROCENT
-    const percent = computeTotalPercent(r.textStats || {});
+    const percent = computeTotalPercent(stats);
     const tdTotalPercent = document.createElement("td");
     tdTotalPercent.className = "total-percent";
     tdTotalPercent.textContent = percent + "%";
     tr.appendChild(tdTotalPercent);
 
-    // 📌 4) TEXTKOLUMNER
     for (let i = 0; i < colCount; i++) {
       const td = document.createElement("td");
       td.className = "text-col";
-
       const div = document.createElement("div");
       div.className = "cell";
-
       if (i < orderedKeys.length) {
         const key = orderedKeys[i];
-        const p = r.textStats?.[key];
+        const p = stats[key];
         const title = parseKey(key).title;
-
         div.classList.add(cellClass(p));
         div.title = `${title}${p != null ? `: ${p}%` : ""}`;
         div.textContent = p != null ? p : "";
       } else {
         div.classList.add("gray");
       }
-
       td.appendChild(div);
       tr.appendChild(td);
     }
@@ -182,8 +209,33 @@ async function loadClassResults(selectedClass) {
     tableBody.appendChild(tr);
   });
 
-  // efter render → gör sticky scrollbar lika bred
   updateStickyScrollbar();
+  tableBody.querySelectorAll(".delete-student-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      deleteStudent(btn.dataset.id, btn.dataset.namn);
+    });
+  });
+}
+
+
+// -----------------------------------------------------
+// 🗑️ Radera elev från Firebase (och från statistiken)
+// -----------------------------------------------------
+async function deleteStudent(docId, namn) {
+  if (!docId) return;
+  const msg = namn
+    ? `Ta bort "${namn}" från statistiken? Detta kan inte ångras.`
+    : "Ta bort denna elev från statistiken? Detta kan inte ångras.";
+  if (!confirm(msg)) return;
+
+  try {
+    await db.collection("readingResults").doc(docId).delete();
+    loadClassResults(classSelect.value);
+  } catch (err) {
+    console.error(err);
+    alert("Kunde inte radera: " + (err.message || err));
+  }
 }
 
 

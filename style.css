@@ -44,6 +44,20 @@ body.bg {
     transform: scale(1.05);
     background: linear-gradient(135deg, #748ffc, #5c7cfa);
   }
+
+  .start-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .start-buttons button { width: 100%; }
+  .btn-fakta {
+    background: linear-gradient(135deg, #0ca678, #087f5b) !important;
+  }
+  .btn-fakta:hover {
+    background: linear-gradient(135deg, #20c997, #0ca678) !important;
+  }
   
   /* Top banner */
   .top-bar {
