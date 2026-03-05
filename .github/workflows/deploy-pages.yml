@@ -1,0 +1,30 @@
+# Deployar till GitHub Pages vid push till main ELLER när du klickar "Kör"
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # Manuell knapp under Actions → Run workflow
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload site
+        uses: actions/upload-pages-artifact@3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: github_pages
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@4

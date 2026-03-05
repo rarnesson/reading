@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Läsförståelsen – Logga in 📖</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg">
+
+  <div class="login-box">
+    <h1>📖 Läsförståelsen</h1>
+    <p>Välj klass och skriv ditt förnamn.</p>
+
+    <select id="classSelect">
+      <option value="">Välj klass</option>
+      <option value="3B">3B</option>
+      <option value="4E">4E</option>
+    </select>
+
+    <input type="text" id="nameInput" placeholder="Förnamn">
+    <button id="startBtn">Starta</button>
+  </div>
+
+  <script>
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const name = document.getElementById("nameInput").value.trim();
+      const klass = document.getElementById("classSelect").value;
+      if (!name || !klass) return alert("Välj klass och skriv ditt namn!");
+
+      localStorage.setItem("reading_name", name);
+      localStorage.setItem("reading_class", klass);
+      window.location.href = "reading.html";
+    });
+  </script>
+
+</body>
+</html>

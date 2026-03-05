@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Affär – Lärarvy</title>
+
+  <link rel="stylesheet" href="owner.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="owner.js" defer></script>
+</head>
+<body>
+  <div class="owner-page">
+    <header class="owner-header">
+      <div class="owner-title">
+        🧾 Affären – Lärarvy
+        <span class="owner-subtitle">Se och bocka av elevernas köp</span>
+      </div>
+
+      <div class="owner-controls">
+        <label for="classFilter">Klass:</label>
+        <select id="classFilter">
+          <option value="ALL">Alla</option>
+        </select>
+        <button class="owner-refresh-btn" id="refreshBtn">🔄 Uppdatera</button>
+        <button class="owner-back-btn" onclick="window.location.href='teacher.html'">
+          ⬅ Till lärarsidan
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- Ej utdelade -->
+      <section class="owner-section">
+        <h2>🛍️ Ej utdelade köp</h2>
+        <p class="owner-info">
+          Här ser du alla köp från affären som ännu inte är utdelade. Bocka av när eleven har fått sin belöning.
+        </p>
+
+        <div class="table-wrapper">
+          <table class="owner-table">
+            <thead>
+              <tr>
+                <th>Elev</th>
+                <th>Klass</th>
+                <th>Vara</th>
+                <th>Pris (p)</th>
+                <th>Köptid</th>
+                <th>Utdelad</th>
+              </tr>
+            </thead>
+            <tbody id="pendingBody">
+              <!-- Fylls i owner.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Historik -->
+      <section class="owner-section owner-section-history">
+        <h2>📜 Historik – utdelade köp</h2>
+        <p class="owner-info">
+          Här ser du belöningar som redan markerats som utdelade. Senaste överst.
+        </p>
+
+        <div class="table-wrapper">
+          <table class="owner-table">
+            <thead>
+              <tr>
+                <th>Elev</th>
+                <th>Klass</th>
+                <th>Vara</th>
+                <th>Pris (p)</th>
+                <th>Köptid</th>
+                <th>Utdelad tid</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <!-- Fylls i owner.js -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

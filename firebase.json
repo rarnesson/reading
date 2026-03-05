@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "site": "reading",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "**/arkiv texter/**",
+      "README.md",
+      ".github"
+    ]
+  }
+}

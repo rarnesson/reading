@@ -1,0 +1,265 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: radial-gradient(circle at top, #dbeafe 0, #eff6ff 40%, #f9fafb 100%);
+    color: #111827;
+  }
+  
+  .shop-page {
+    max-width: 1000px;
+    margin: 20px auto 40px;
+    padding: 0 16px;
+  }
+  
+  /* Header */
+  
+  .shop-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: white;
+    padding: 16px 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    margin-bottom: 24px;
+  }
+  
+  .shop-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .shop-subtitle {
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  
+  .shop-user-box {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .shop-user-name {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .shop-user-class {
+    font-size: 0.9rem;
+    color: #6b7280;
+  }
+  
+  .shop-user-points {
+    margin-top: 4px;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .back-btn {
+    margin-top: 8px;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 999px;
+    border: none;
+    background: #e5e7eb;
+    color: #111827;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+  }
+  
+  .back-btn:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+  }
+  
+  /* Klassens sektion */
+  
+  .class-section {
+    background: white;
+    padding: 16px 20px 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+    margin-bottom: 24px;
+  }
+  
+  .class-section h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+    color: #111827;
+  }
+  
+  .class-points {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  
+  .progress-wrapper {
+    margin-bottom: 8px;
+  }
+  
+  .progress-bar {
+    position: relative;
+    height: 18px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #22c55e, #16a34a, #15803d);
+    transition: width 0.3s ease-out;
+  }
+  
+  .progress-marker {
+    position: absolute;
+    top: -42px;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 0.7rem;
+    color: #4b5563;
+  }
+  
+  .progress-marker span {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 4px 6px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+  }
+  
+  .marker1 {
+    left: 30%;
+  }
+  
+  .marker2 {
+    left: 70%;
+  }
+  
+  .marker3 {
+    right: 0;
+    transform: translateX(50%);
+  }
+  
+  .next-goal-text {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+  
+  /* Items */
+  
+  .items-section {
+    background: white;
+    padding: 16px 20px 20px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+  }
+  
+  .items-section h2 {
+    margin: 0 0 12px;
+    font-size: 1.2rem;
+  }
+  
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  
+  .item-card {
+    background: #f9fafb;
+    border-radius: 14px;
+    padding: 12px 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    border: 1px solid #e5e7eb;
+  }
+  
+  .item-icon {
+    font-size: 1.8rem;
+  }
+  
+  .item-title {
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  .item-desc {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+  
+  .item-price {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 4px;
+  }
+  
+  .item-actions {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .buy-btn {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, opacity 0.1s;
+  }
+  
+  .buy-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+  }
+  
+  .buy-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  
+  .shop-message {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    min-height: 1.2em;
+  }
+  
+  /* Responsiv */
+  
+  @media (max-width: 700px) {
+    .shop-header {
+      flex-direction: column;
+      gap: 12px;
+    }
+  
+    .shop-user-box {
+      text-align: left;
+      align-items: flex-start;
+    }
+  
+    .progress-marker {
+      display: none; /* enklare i mobil */
+    }
+  }
+  .goal-list {
+    margin: 4px 0 10px;
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+  

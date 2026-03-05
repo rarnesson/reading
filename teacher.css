@@ -1,0 +1,167 @@
+:root {
+  --text-col-width: 44px;
+  --sticky-bg: #fff;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  background: #f8fafc;
+}
+
+/* TOPBAR */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0059ff;
+  color: white;
+  padding: 12px 20px;
+}
+
+.filter select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* TABLE WRAPPER (ger luft så tabellen inte hamnar bakom scrollbar) */
+.table-wrapper {
+  padding-bottom: 40px;
+}
+
+/* Huvud-scroll (syns normalt, men vi speglar scrollen i stickyScroll) */
+.table-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 16px;
+}
+
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,.08);
+  min-width: 100%;
+  table-layout: fixed;
+}
+
+th, td {
+  border: 1px solid #eee;
+  padding: 6px 8px;
+  text-align: center;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+/* Sticky kolumner */
+th.sticky, td.sticky {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--sticky-bg);
+  box-shadow: 2px 0 0 #eee;
+}
+
+/* Namnkolumn */
+th.name-col, td.name-col {
+  width: 130px;
+  min-width: 130px;
+  max-width: 130px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* TOTAL RÄTT */
+th.total-correct, td.total-correct {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  position: sticky;
+  left: 130px;
+  background: var(--sticky-bg);
+  z-index: 2;
+  box-shadow: 2px 0 0 #ccc;
+}
+
+/* TOTAL SNITT % */
+th.total-percent, td.total-percent {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  text-align: center;
+  position: sticky;
+  left: 210px; /* 130 + 80 */
+  background: var(--sticky-bg);
+  z-index: 2;
+  box-shadow: 2px 0 0 #bbb;
+}
+
+/* Textkolumner */
+th.text-col, td.text-col {
+  min-width: var(--text-col-width);
+  max-width: var(--text-col-width);
+  width: var(--text-col-width);
+  padding: 0;
+}
+
+/* Cellfärger */
+.cell {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 4px;
+  color: white;
+  font-weight: 700;
+  display: inline-block;
+}
+
+.cell.green { background: #20c997; }
+.cell.yellow { background: #ffc107; color:#222; }
+.cell.red { background: #e03131; }
+.cell.gray { background: #dee2e6; color:#999; }
+
+.cell:hover { filter: brightness(1.06); cursor: pointer; }
+
+/* Sticky header fix */
+thead th.sticky,
+thead th.total-correct,
+thead th.total-percent {
+  z-index: 4;
+}
+
+/* --- STICKY SCROLLBAR --- */
+.sticky-scroll {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: #fff;
+  overflow-x: auto;
+  overflow-y: hidden;
+  z-index: 10;
+  border-top: 1px solid #ddd;
+}
+
+/* Scrollbar style */
+.sticky-scroll::-webkit-scrollbar,
+.table-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+.sticky-scroll::-webkit-scrollbar-thumb,
+.table-scroll::-webkit-scrollbar-thumb {
+  background: #cfd8dc;
+  border-radius: 5px;
+}
+.sticky-scroll::-webkit-scrollbar-thumb:hover,
+.table-scroll::-webkit-scrollbar-thumb:hover {
+  background: #b0bec5;
+}
