@@ -243,7 +243,7 @@ function loadTextsBerattande() {
       delete window.__textsBerattande;
 
       if (!Array.isArray(arr) || arr.length === 0) {
-        allTextsDone();
+        showBerattandeLoadError();
         resolve();
         return;
       }
@@ -257,7 +257,7 @@ function loadTextsBerattande() {
     };
 
     script.onerror = () => {
-      allTextsDone();
+      showBerattandeLoadError();
       resolve();
     };
 
@@ -308,12 +308,29 @@ function onBerattandeFortsatt() {
 }
 
 // --------------------------------------------------------
+// 📖 Fel vid laddning av berättelserna (visa inte "alla klara")
+// --------------------------------------------------------
+function showBerattandeLoadError() {
+  document.querySelector(".reading-container").innerHTML = `
+    <h2>⚠️ Kunde inte ladda berättelserna</h2>
+    <p>Texterna kunde inte laddas. Kontrollera nätet och försök ladda om sidan.</p>
+    <button class="main-btn" onclick="window.location.reload()" style="margin-right:8px;">🔄 Ladda om</button>
+    <button class="main-btn" onclick="window.location.href='index.html'">Tillbaka</button>
+  `;
+}
+
+// --------------------------------------------------------
 // 📖 Ladda aktuell berättelse (story) – starta från del 1
 // --------------------------------------------------------
 function loadStory() {
   if (currentTextIndex >= currentTexts.length) {
-    allTextsDone();
-    return;
+    if (currentTexts.length > 0) {
+      currentTextIndex = 0;
+      saveResult(false);
+    } else {
+      allTextsDone();
+      return;
+    }
   }
 
   currentStory = currentTexts[currentTextIndex];
