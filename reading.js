@@ -698,6 +698,19 @@ async function updateClassPoints(amount) {
 function allTextsDone() {
   const isFakta = isFaktaMode;
   const isBerattande = isBerattandeMode;
+
+  // Berättande: visa aldrig "alla klara" om eleven inte klarat minst en – då något gick fel (t.ex. cache eller script laddades inte)
+  if (isBerattande && cleared === 0) {
+    if (Array.isArray(currentTexts) && currentTexts.length > 0) {
+      currentTextIndex = 0;
+      saveResult(false);
+      loadStory();
+      return;
+    }
+    showBerattandeLoadError();
+    return;
+  }
+
   const title = isBerattande ? "🎉 Berättande texter klara!" : isFakta ? "🎉 Faktatexter klara!" : "🎉 Alla texter klara!";
   const reloadLabel = isBerattande ? "Kolla efter fler berättelser" : isFakta ? "Kolla efter fler faktatexter" : "Kolla efter fler texter";
   document.querySelector(".reading-container").innerHTML = `
