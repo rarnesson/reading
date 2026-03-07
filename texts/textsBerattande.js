@@ -89,7 +89,7 @@ window.__textsBerattande = [
         text: `Ville var uppe på loftet och letade efter gamla leksaker. Det var en regnig lördag och det fanns inget bättre att göra. I en kartong med böcker hittade han något konstigt: en gulnad lapp som såg ut som en ritning. Det fanns ett träd, en pil och ett kryss. Längst ner stod det skrivet med blek penna: "Tre steg vänster från stammen." Ville gick ner med lappen och visade den för sin storebror. "Det där är nog morfars", sa brodern. "Han brukade gömma saker i trädgården när vi var små. Han sa alltid att det fanns skatter om man bara letade." Ville blev nyfiken. "Ska jag följa kartan?" Brodern ryckte på axlarna. "Varför inte? Trädet ser ut att vara det stora äppelträdet. Krysset är nog någonstans där." Nästa morgon bestämde sig Ville för att prova.`,
         questions: [
           { q: "Var hittar Ville lappen?", a: ["I köket", "På loftet i en kartong med böcker", "I trädgården", "I sitt rum"], correct: 1 },
-          { q: "Vad står på lappen?", a: ["Ett datum", "En ritning med träd, pil och kryss och \"Tre steg vänster från stammen\"", "Bara en namnteckning", "Ingenting"], correct: 1 },
+          { q: "Vad står på lappen?", a: ["Ett datum", "En ritning med träd, pil och kryss och texten Tre steg vänster från stammen", "Bara en namnteckning", "Ingenting"], correct: 1 },
           { q: "Vems lapp tror storebror att det är?", a: ["Pappas", "Morfars", "Sin egen", "Villes"], correct: 1 },
           { q: "Vilket träd tror de att ritningen visar?", a: ["Ett barrträd", "Det stora äppelträdet", "Ett björkträd", "Inget träd"], correct: 1 }
         ]
