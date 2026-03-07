@@ -227,11 +227,12 @@ function buildTable(rows, tabId) {
 }
 
 // -----------------------------------------------------
-// 📊 Ordförståelse: kolumn = Omgång 1, 2, … cell = antal rätt
+// 📊 Ordförståelse: kolumn = Omgång 1, 2, … + Pågår (rätt/gjorda)
 // -----------------------------------------------------
 function buildOrdtestTable(rows) {
   const attemptsList = rows.map((r) => r.ordtestAttempts || []);
   const maxAttempts = Math.max(1, ...attemptsList.map((a) => a.length));
+  const hasAnyInProgress = rows.some((r) => r.ordtestInProgress && r.ordtestInProgress.currentIndex > 0);
 
   headerRow.innerHTML = "";
   const thName = document.createElement("th");
@@ -243,6 +244,13 @@ function buildOrdtestTable(rows) {
     th.className = "text-col";
     th.textContent = "Omgång " + (i + 1);
     headerRow.appendChild(th);
+  }
+  if (hasAnyInProgress) {
+    const thPagar = document.createElement("th");
+    thPagar.className = "text-col";
+    thPagar.textContent = "Pågår";
+    thPagar.title = "Rätt av gjorda (uppdateras under testet)";
+    headerRow.appendChild(thPagar);
   }
 
   const sortedRows = rows.slice().sort((a, b) => (a.namn || "").localeCompare(b.namn || "", "sv"));
@@ -283,6 +291,27 @@ function buildOrdtestTable(rows) {
       td.appendChild(div);
       tr.appendChild(td);
     }
+
+    if (hasAnyInProgress) {
+      const td = document.createElement("td");
+      td.className = "text-col";
+      const div = document.createElement("div");
+      div.className = "cell";
+      const prog = r.ordtestInProgress;
+      if (prog && prog.currentIndex > 0) {
+        const c = prog.correctCount ?? 0;
+        const n = prog.currentIndex;
+        const pct = n > 0 ? Math.round((c / n) * 100) : 0;
+        div.classList.add(cellClass(pct));
+        div.title = c + " rätt av " + n + " gjorda";
+        div.textContent = c + "/" + n;
+      } else {
+        div.classList.add("gray");
+      }
+      td.appendChild(div);
+      tr.appendChild(td);
+    }
+
     tableBody.appendChild(tr);
   });
 
