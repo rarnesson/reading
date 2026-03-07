@@ -236,7 +236,9 @@ function loadTextsBerattande() {
 
     const script = document.createElement("script");
     script.id = "textsScript";
-    script.src = "texts/textsBerattande.js?v=1";
+    // Sökväg från samma mapp som sidan (fungerar på GitHub Pages och lokalt)
+    const base = window.location.href.replace(/\/[^/]*$/, "/");
+    script.src = base + "texts/textsBerattande.js?v=2";
 
     script.onload = () => {
       const arr = window.__textsBerattande;
