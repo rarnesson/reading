@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Upload site
-        uses: actions/upload-pages-artifact@3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
