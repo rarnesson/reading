@@ -14,7 +14,8 @@ const stickyScroll = document.getElementById("stickyScroll");
 const TABS = [
   { id: "normal", label: "Vanliga texter", statsKey: "textStats" },
   { id: "fakta", label: "Faktatexter", statsKey: "textStatsFakta" },
-  { id: "berattande", label: "Berättande texter", statsKey: "textStatsBerattande" }
+  { id: "berattande", label: "Berättande texter", statsKey: "textStatsBerattande" },
+  { id: "ordforstaelse", label: "Ordförståelse", statsKey: "ordtestAttempts", isOrdtest: true }
 ];
 let currentTab = "normal";
 let cachedRows = [];
@@ -126,11 +127,17 @@ function buildTable(rows, tabId) {
 
   const tabConfig = TABS.find((t) => t.id === tabId) || TABS[0];
   const statsKey = tabConfig.statsKey;
+  const isOrdtest = tabConfig.isOrdtest === true;
 
   if (!rows || !rows.length) {
     tableBody.innerHTML =
       `<tr><td class="name-col sticky">Inga elever hittades.</td></tr>`;
     updateStickyScrollbar();
+    return;
+  }
+
+  if (isOrdtest) {
+    buildOrdtestTable(rows);
     return;
   }
 
@@ -207,6 +214,75 @@ function buildTable(rows, tabId) {
       tr.appendChild(td);
     }
 
+    tableBody.appendChild(tr);
+  });
+
+  updateStickyScrollbar();
+  tableBody.querySelectorAll(".delete-student-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      deleteStudent(btn.dataset.id, btn.dataset.namn);
+    });
+  });
+}
+
+// -----------------------------------------------------
+// 📊 Ordförståelse: kolumn = Omgång 1, 2, … cell = antal rätt
+// -----------------------------------------------------
+function buildOrdtestTable(rows) {
+  const attemptsList = rows.map((r) => r.ordtestAttempts || []);
+  const maxAttempts = Math.max(1, ...attemptsList.map((a) => a.length));
+
+  headerRow.innerHTML = "";
+  const thName = document.createElement("th");
+  thName.className = "name-col sticky";
+  thName.textContent = "Elev";
+  headerRow.appendChild(thName);
+  for (let i = 0; i < maxAttempts; i++) {
+    const th = document.createElement("th");
+    th.className = "text-col";
+    th.textContent = "Omgång " + (i + 1);
+    headerRow.appendChild(th);
+  }
+
+  const sortedRows = rows.slice().sort((a, b) => (a.namn || "").localeCompare(b.namn || "", "sv"));
+  sortedRows.forEach((r) => {
+    const tr = document.createElement("tr");
+    const tdName = document.createElement("td");
+    tdName.className = "name-col sticky";
+    const nameWrap = document.createElement("span");
+    nameWrap.className = "name-cell-wrap";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "delete-student-btn";
+    deleteBtn.title = "Radera elev från statistiken";
+    deleteBtn.setAttribute("aria-label", "Radera " + r.namn);
+    deleteBtn.textContent = "✕";
+    deleteBtn.dataset.id = r.id;
+    deleteBtn.dataset.namn = r.namn;
+    nameWrap.appendChild(deleteBtn);
+    nameWrap.appendChild(document.createTextNode(" " + (r.namn || "")));
+    tdName.appendChild(nameWrap);
+    tr.appendChild(tdName);
+
+    const arr = r.ordtestAttempts || [];
+    for (let i = 0; i < maxAttempts; i++) {
+      const td = document.createElement("td");
+      td.className = "text-col";
+      const div = document.createElement("div");
+      div.className = "cell";
+      const val = arr[i];
+      if (val != null) {
+        const pct = Math.round((val / 100) * 100);
+        div.classList.add(cellClass(pct));
+        div.title = val + " av 100 rätt";
+        div.textContent = val;
+      } else {
+        div.classList.add("gray");
+      }
+      td.appendChild(div);
+      tr.appendChild(td);
+    }
     tableBody.appendChild(tr);
   });
 

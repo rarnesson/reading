@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordförståelsetest – Åk 4–5</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; background: url("bg.jpg") no-repeat center center fixed; background-size: cover; color: #222; }
+    .banner {
+      background: rgba(255,255,255,0.9);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #0ca678;
+      font-weight: 600;
+    }
+    .ordtest-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.95);
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    .ordtest-container h2 { color: #0ca678; margin-top: 0; text-align: center; font-size: 1.8em; }
+    .progress-text { text-align: center; font-size: 0.95em; color: #555; margin-bottom: 1.5em; }
+    .answer-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #5c7cfa, #364fc7);
+      color: white;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.2s;
+    }
+    .answer-btn:hover:not(:disabled) { transform: scale(1.02); background: linear-gradient(135deg, #4b64e3, #2f44b2); }
+    .answer-btn:disabled { cursor: default; }
+    .answer-btn.correct { background: #198754 !important; }
+    .answer-btn.wrong { background: #dc3545 !important; }
+    .main-btn {
+      display: block;
+      margin: 15px auto 0;
+      background: #198754;
+      border: none;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+    .main-btn:hover { background: #146c43; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+  <div class="banner">
+    <span>📖 Ordförståelsetest</span>
+    <span id="progressInfo">Fråga 0 av 100</span>
+    <a href="index.html" style="color:#333;">Tillbaka</a>
+  </div>
+
+  <div class="ordtest-container">
+    <div id="startScreen">
+      <h2>Ordförståelsetest</h2>
+      <p>Välj det alternativ som betyder mest lika det givna ordet. 100 ord. Inga poäng – bara för att träna.</p>
+      <button id="startBtn" class="main-btn">Starta testet</button>
+    </div>
+
+    <div id="questionScreen" style="display:none;">
+      <h2 id="wordDisplay"></h2>
+      <p class="progress-text" id="progressText">Fråga 1 av 100</p>
+      <div id="answers"></div>
+    </div>
+
+    <div id="resultScreen" style="display:none;">
+      <h2>Klart!</h2>
+      <p id="resultText"></p>
+      <p id="bestText" style="margin-top:0.5em;"></p>
+      <button id="restartBtn" class="main-btn">Starta ny omgång</button>
+      <button id="backBtn" class="main-btn" style="margin-top:8px; background:#6c757d;">Tillbaka till startsidan</button>
+    </div>
+  </div>
+
+  <script src="ordtest.js" defer></script>
+</body>
+</html>
