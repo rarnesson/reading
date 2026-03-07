@@ -13,7 +13,8 @@ const stickyScroll = document.getElementById("stickyScroll");
 // Flikar för texttyper – enkelt att lägga till fler senare
 const TABS = [
   { id: "normal", label: "Vanliga texter", statsKey: "textStats" },
-  { id: "fakta", label: "Faktatexter", statsKey: "textStatsFakta" }
+  { id: "fakta", label: "Faktatexter", statsKey: "textStatsFakta" },
+  { id: "berattande", label: "Berättande texter", statsKey: "textStatsBerattande" }
 ];
 let currentTab = "normal";
 let cachedRows = [];

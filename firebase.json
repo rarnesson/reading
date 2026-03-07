@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "reading",
     "public": ".",
     "ignore": [
       "firebase.json",

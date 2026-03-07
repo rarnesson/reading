@@ -13,6 +13,8 @@ const elevId = `${klass}_${name.trim().toLowerCase().replace(/\s+/g, "_")}`;
 
 // 📋 Fakta-läge = träna bara faktatexter (separat framsteg)
 const isFaktaMode = localStorage.getItem("reading_mode") === "fakta";
+// 📖 Berättande-läge = "Läs först, svara sen" (delar med text → frågor, måste klara för poäng)
+const isBerattandeMode = localStorage.getItem("reading_mode") === "berattande";
 
 // --------------------------------------------------------
 // 📊 Tillstånd
@@ -34,6 +36,12 @@ let totalAnswers = 0;
 
 let textRight = 0;
 let textTotal = 0;
+
+// Berättande: aktuell berättelse (story), delindex, rätt/total för hela berättelsen
+let currentStory = null;
+let currentPartIndex = 0;
+let storyCorrect = 0;
+let storyTotal = 0;
 
 // --------------------------------------------------------
 // 🧩 Ladda elevens framsteg
@@ -63,6 +71,9 @@ async function loadProgress() {
       cleared = data.texterFakta ?? 0;
       currentTextIndex = data.currentTextIndexFakta ?? 0;
       currentQuestionIndex = data.currentQuestionIndexFakta ?? 0;
+    } else if (isBerattandeMode) {
+      cleared = data.texterBerattande ?? 0;
+      currentTextIndex = data.currentTextIndexBerattande ?? 0;
     } else {
       cleared = data.texter ?? 0;
       currentTextIndex = data.currentTextIndex ?? 0;
@@ -83,6 +94,16 @@ async function loadProgress() {
       banner.insertBefore(badge, banner.firstChild);
     }
     await loadTextsFileFakta();
+  } else if (isBerattandeMode) {
+    const banner = document.querySelector(".banner");
+    if (banner) {
+      const badge = document.createElement("span");
+      badge.textContent = "📖 Läs först, svara sen";
+      badge.style.marginRight = "12px";
+      badge.style.opacity = "0.95";
+      banner.insertBefore(badge, banner.firstChild);
+    }
+    await loadTextsBerattande();
   } else {
     await loadTextsFile(textsFileIndex);
   }
@@ -205,9 +226,121 @@ function loadTextsFileFakta() {
 }
 
 // --------------------------------------------------------
+// 📖 Ladda berättande texter – "Läs först, svara sen"
+// --------------------------------------------------------
+function loadTextsBerattande() {
+  return new Promise((resolve) => {
+    const old = document.getElementById("textsScript");
+    if (old) old.remove();
+    delete window.__textsBerattande;
+
+    const script = document.createElement("script");
+    script.id = "textsScript";
+    script.src = "texts/textsBerattande.js?v=1";
+
+    script.onload = () => {
+      const arr = window.__textsBerattande;
+      delete window.__textsBerattande;
+
+      if (!Array.isArray(arr) || arr.length === 0) {
+        allTextsDone();
+        resolve();
+        return;
+      }
+
+      currentTexts = arr;
+      if (currentTextIndex >= currentTexts.length) currentTextIndex = 0;
+
+      saveResult(false);
+      loadStory();
+      resolve();
+    };
+
+    script.onerror = () => {
+      allTextsDone();
+      resolve();
+    };
+
+    document.body.appendChild(script);
+  });
+}
+
+// --------------------------------------------------------
+// 📖 Visa en del av berättelsen (bara text + Fortsätt)
+// --------------------------------------------------------
+function showPartReading() {
+  const qArea = document.getElementById("questionArea");
+  const readingTextEl = document.getElementById("readingText");
+  if (qArea) qArea.style.display = "none";
+  if (readingTextEl) readingTextEl.style.display = "block";
+
+  let wrap = document.getElementById("berattandeFortsattWrap");
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.id = "berattandeFortsattWrap";
+    wrap.style.marginTop = "1em";
+    const btn = document.createElement("button");
+    btn.className = "main-btn";
+    btn.textContent = "Fortsätt";
+    btn.id = "btnFortsatt";
+    btn.onclick = onBerattandeFortsatt;
+    wrap.appendChild(btn);
+    readingTextEl.parentNode.insertBefore(wrap, qArea);
+  }
+  wrap.style.display = "block";
+}
+
+// Klick på "Fortsätt" – dölj text, visa frågor för denna del (ingen tillbaka)
+function onBerattandeFortsatt() {
+  const wrap = document.getElementById("berattandeFortsattWrap");
+  const readingTextEl = document.getElementById("readingText");
+  const qArea = document.getElementById("questionArea");
+  if (wrap) wrap.style.display = "none";
+  if (readingTextEl) readingTextEl.style.display = "none";
+  if (qArea) qArea.style.display = "block";
+
+  const part = currentStory.parts[currentPartIndex];
+  questions = part.questions || [];
+  textTotal = questions.length;
+  textRight = 0;
+  currentQuestionIndex = 0;
+  showQuestion();
+}
+
+// --------------------------------------------------------
+// 📖 Ladda aktuell berättelse (story) – starta från del 1
+// --------------------------------------------------------
+function loadStory() {
+  if (currentTextIndex >= currentTexts.length) {
+    allTextsDone();
+    return;
+  }
+
+  currentStory = currentTexts[currentTextIndex];
+  currentText = currentStory;
+  currentPartIndex = 0;
+  storyCorrect = 0;
+  storyTotal = 0;
+
+  const part = currentStory.parts[0];
+  const partText = (part.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  document.getElementById("textTitle").textContent =
+    currentStory.title + " – Del 1 av " + currentStory.parts.length;
+  document.getElementById("readingText").innerHTML =
+    partText.split(/\n/).map((p) => `<p>${p}</p>`).join("");
+  document.getElementById("textCategory").textContent = currentStory.category || "Berättande text";
+
+  showPartReading();
+}
+
+// --------------------------------------------------------
 // 🧠 Ladda text
 // --------------------------------------------------------
 function loadText() {
+  if (isBerattandeMode) {
+    loadStory();
+    return;
+  }
   if (currentTextIndex >= currentTexts.length) {
     if (isFaktaMode) {
       allTextsDone();
@@ -291,8 +424,31 @@ async function checkAnswer(isCorrect) {
   await saveResult(false);
   updateBannerStats();
 
-  if (currentQuestionIndex < questions.length) showQuestion();
-  else showFeedbackPopup();
+  if (currentQuestionIndex < questions.length) {
+    showQuestion();
+    return;
+  }
+
+  // Berättande: del klar – räkna ihop, visa nästa del eller resultat för hela berättelsen
+  if (isBerattandeMode && currentStory) {
+    storyCorrect += textRight;
+    storyTotal += textTotal;
+    currentPartIndex++;
+    if (currentPartIndex < currentStory.parts.length) {
+      const part = currentStory.parts[currentPartIndex];
+      const partText = (part.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      document.getElementById("textTitle").textContent =
+        currentStory.title + " – Del " + (currentPartIndex + 1) + " av " + currentStory.parts.length;
+      document.getElementById("readingText").innerHTML =
+        partText.split(/\n/).map((p) => `<p>${p}</p>`).join("");
+      showPartReading();
+      return;
+    }
+    showFeedbackPopupBerattande();
+    return;
+  }
+
+  showFeedbackPopup();
 }
 
 // --------------------------------------------------------
@@ -360,6 +516,65 @@ function showFeedbackPopup() {
 }
 
 // --------------------------------------------------------
+// 💬 Popup för berättelse – poäng bara om ≥65 % (klara)
+// --------------------------------------------------------
+function showFeedbackPopupBerattande() {
+  const totalSafe = storyTotal || 1;
+  const percent = Math.round((storyCorrect / totalSafe) * 100);
+  const passed = percent >= 65;
+
+  const overlay = document.createElement("div");
+  overlay.className = "popup-overlay";
+  const popup = document.createElement("div");
+  popup.className = "popup-box";
+
+  popup.innerHTML = `
+    <h2>${passed ? "✨ Bra jobbat!" : "📘 För låg nivå"}</h2>
+    <p><strong>${currentStory.title}</strong></p>
+    <p>Du fick <strong>${storyCorrect}</strong> av <strong>${storyTotal}</strong> rätt (${percent}%).</p>
+    ${passed
+      ? `<p>Du klarade! Poäng och coins ges när du klarar.</p><button id="nextStoryBtn" class="main-btn">Nästa berättelse</button>`
+      : `<p>Du behöver minst 65 % för att klara. Börja om från del 1.</p><button id="borjaOmBtn" class="main-btn" style="background:#ffc107;color:#000;">Börja om</button>`
+    }
+  `;
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  if (passed) {
+    if (currentStory && storyTotal > 0) saveTextStats(currentStory.title, percent);
+    const gain = storyCorrect;
+    coins += gain;
+    totalCorrectAnswers += gain;
+    updateClassPoints(gain);
+    updateBannerStats();
+
+    document.getElementById("nextStoryBtn").onclick = async () => {
+      document.body.removeChild(overlay);
+      cleared++;
+      updateBannerStats();
+      currentTextIndex++;
+      currentQuestionIndex = 0;
+      await saveResult(false);
+      loadStory();
+    };
+  } else {
+    document.getElementById("borjaOmBtn").onclick = async () => {
+      document.body.removeChild(overlay);
+      currentPartIndex = 0;
+      storyCorrect = 0;
+      storyTotal = 0;
+      const part = currentStory.parts[0];
+      const partText = (part.text || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      document.getElementById("textTitle").textContent =
+        currentStory.title + " – Del 1 av " + currentStory.parts.length;
+      document.getElementById("readingText").innerHTML =
+        partText.split(/\n/).map((p) => `<p>${p}</p>`).join("");
+      showPartReading();
+    };
+  }
+}
+
+// --------------------------------------------------------
 // 💾 Statistik per text
 // --------------------------------------------------------
 async function saveTextStats(title, percent) {
@@ -372,6 +587,11 @@ async function saveTextStats(title, percent) {
     const textIndex = currentTextIndex + 1;
     stats[`1.${textIndex}_${title}`] = percent;
     await ref.set({ ...data, textStatsFakta: stats }, { merge: true });
+  } else if (isBerattandeMode) {
+    const stats = data.textStatsBerattande || {};
+    const storyIndex = currentTextIndex + 1;
+    stats[`1.${storyIndex}_${title}`] = percent;
+    await ref.set({ ...data, textStatsBerattande: stats }, { merge: true });
   } else {
     const stats = data.textStats || {};
     const textIndex = currentTextIndex + 1;
@@ -407,6 +627,9 @@ async function saveResult(final = false) {
     data.texterFakta = cleared;
     data.currentTextIndexFakta = currentTextIndex;
     data.currentQuestionIndexFakta = currentQuestionIndex;
+  } else if (isBerattandeMode) {
+    data.texterBerattande = cleared;
+    data.currentTextIndexBerattande = currentTextIndex;
   } else {
     data.texter = cleared;
     data.currentTextIndex = currentTextIndex;
@@ -417,7 +640,7 @@ async function saveResult(final = false) {
   if (snap.exists) await ref.update(data);
   else await ref.set(data);
 
-  if (final) console.log(isFaktaMode ? "✔️ Faktatexter klara" : "✔️ Alla texter klara");
+  if (final) console.log(isFaktaMode ? "✔️ Faktatexter klara" : isBerattandeMode ? "✔️ Berättande texter klara" : "✔️ Alla texter klara");
 }
 
 // --------------------------------------------------------
@@ -457,8 +680,9 @@ async function updateClassPoints(amount) {
 // --------------------------------------------------------
 function allTextsDone() {
   const isFakta = isFaktaMode;
-  const title = isFakta ? "🎉 Faktatexter klara!" : "🎉 Alla texter klara!";
-  const reloadLabel = isFakta ? "Kolla efter fler faktatexter" : "Kolla efter fler texter";
+  const isBerattande = isBerattandeMode;
+  const title = isBerattande ? "🎉 Berättande texter klara!" : isFakta ? "🎉 Faktatexter klara!" : "🎉 Alla texter klara!";
+  const reloadLabel = isBerattande ? "Kolla efter fler berättelser" : isFakta ? "Kolla efter fler faktatexter" : "Kolla efter fler texter";
   document.querySelector(".reading-container").innerHTML = `
     <h2>${title}</h2>
     <p>Totalt antal rätt: <strong>${totalCorrectAnswers}</strong></p>

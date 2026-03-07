@@ -58,7 +58,13 @@ body.bg {
   .btn-fakta:hover {
     background: linear-gradient(135deg, #20c997, #0ca678) !important;
   }
-  
+  .btn-berattande {
+    background: linear-gradient(135deg, #7950f2, #5f3dc4) !important;
+  }
+  .btn-berattande:hover {
+    background: linear-gradient(135deg, #9775fa, #7950f2) !important;
+  }
+
   /* Top banner */
   .top-bar {
     display: flex;
