@@ -8,7 +8,7 @@ if (!name || !klass) {
 
 const elevId = `${klass}_${name.trim().toLowerCase().replace(/\s+/g, "_")}`;
 
-const TOTAL = 100;
+let totalWords = 100;
 let allWords = [];
 let wordOrder = [];
 let currentIndex = 0;
@@ -32,8 +32,9 @@ function shuffleArray(arr) {
 }
 
 function loadWords(cb) {
-  if (window.__ordtestWords && window.__ordtestWords.length >= TOTAL) {
+  if (window.__ordtestWords && window.__ordtestWords.length > 0) {
     allWords = window.__ordtestWords.slice();
+    totalWords = allWords.length;
     cb();
     return;
   }
@@ -42,6 +43,7 @@ function loadWords(cb) {
   script.src = base + "texts/ordtestData.js?v=1";
   script.onload = () => {
     allWords = (window.__ordtestWords || []).slice();
+    totalWords = allWords.length;
     cb();
   };
   script.onerror = () => alert("Kunde inte ladda ordlistan.");
@@ -72,7 +74,7 @@ function showStart() {
   startScreen.style.display = "block";
   questionScreen.style.display = "none";
   resultScreen.style.display = "none";
-  progressInfo.textContent = "Fråga 0 av 100";
+  progressInfo.textContent = "Fråga 0 av " + totalWords;
 
   const startBtn = document.getElementById("startBtn");
   startBtn.onclick = () => {
@@ -88,11 +90,11 @@ function showStart() {
 }
 
 function showResumeOrStart() {
-  if (inProgress && inProgress.wordOrder && inProgress.wordOrder.length === TOTAL) {
+  if (inProgress && inProgress.wordOrder && inProgress.wordOrder.length === totalWords) {
     wordOrder = inProgress.wordOrder;
     currentIndex = inProgress.currentIndex || 0;
     correctCount = inProgress.correctCount || 0;
-    if (currentIndex >= TOTAL) {
+    if (currentIndex >= wordOrder.length) {
       finishAttempt();
       return;
     }
@@ -105,11 +107,18 @@ function showResumeOrStart() {
 }
 
 function showQuestion() {
-  progressInfo.textContent = `Fråga ${currentIndex + 1} av ${TOTAL}`;
-  document.getElementById("progressText").textContent = `Fråga ${currentIndex + 1} av ${TOTAL}`;
-
+  if (currentIndex >= wordOrder.length) {
+    finishAttempt();
+    return;
+  }
   const idx = wordOrder[currentIndex];
   const item = allWords[idx];
+  if (!item) {
+    finishAttempt();
+    return;
+  }
+  progressInfo.textContent = `Fråga ${currentIndex + 1} av ${totalWords}`;
+  document.getElementById("progressText").textContent = `Fråga ${currentIndex + 1} av ${totalWords}`;
   document.getElementById("wordDisplay").textContent = item.word;
 
   const opts = item.options.map((text, i) => ({ text, correct: i === item.answer }));
@@ -144,7 +153,7 @@ function handleAnswer(clickedBtn, isCorrect, allBtns) {
   saveProgress();
 
   currentIndex++;
-  if (currentIndex >= TOTAL) {
+  if (currentIndex >= wordOrder.length) {
     setTimeout(finishAttempt, 1200);
     return;
   }
@@ -160,10 +169,11 @@ function finishAttempt() {
   resultScreen.style.display = "block";
   progressInfo.textContent = "Klart";
 
-  const best = Math.max(...attempts);
-  document.getElementById("resultText").textContent = `Du fick ${correctCount} av ${TOTAL} rätt denna omgång.`;
+  const totalThisRound = wordOrder.length;
+  const best = attempts.length ? Math.max(...attempts) : correctCount;
+  document.getElementById("resultText").textContent = `Du fick ${correctCount} av ${totalThisRound} rätt denna omgång.`;
   document.getElementById("bestText").textContent = attempts.length > 1
-    ? `Bästa resultat hittills: ${best} av ${TOTAL}.`
+    ? `Bästa resultat hittills: ${best} av ${totalThisRound}.`
     : "";
 
   document.getElementById("restartBtn").onclick = () => {
