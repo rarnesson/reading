@@ -15,7 +15,8 @@ const TABS = [
   { id: "normal", label: "Vanliga texter", statsKey: "textStats" },
   { id: "fakta", label: "Faktatexter", statsKey: "textStatsFakta" },
   { id: "berattande", label: "Berättande texter", statsKey: "textStatsBerattande" },
-  { id: "ordforstaelse", label: "Ordförståelse", statsKey: "ordtestAttempts", isOrdtest: true }
+  { id: "ordforstaelse", label: "Ordförståelse", statsKey: "ordtestAttempts", isOrdtest: true },
+  { id: "ordjakt", label: "Ordjakt", isOrdjakt: true }
 ];
 let currentTab = "normal";
 let cachedRows = [];
@@ -24,6 +25,8 @@ let cachedClass = "";
 // Hur många kolumner max (siffror)
 const DEFAULT_TEXT_COLUMNS = 40;
 
+/** Måltid i ordjakt (sekunder), samma som i ordjakt-levels.js */
+const ORDJAKT_TARGET_SEC = 150;
 
 // 🔄 Sync mellan övre och nedre scroll
 tableScroll.addEventListener("scroll", () => {
@@ -128,6 +131,7 @@ function buildTable(rows, tabId) {
   const tabConfig = TABS.find((t) => t.id === tabId) || TABS[0];
   const statsKey = tabConfig.statsKey;
   const isOrdtest = tabConfig.isOrdtest === true;
+  const isOrdjakt = tabConfig.isOrdjakt === true;
 
   if (!rows || !rows.length) {
     tableBody.innerHTML =
@@ -138,6 +142,11 @@ function buildTable(rows, tabId) {
 
   if (isOrdtest) {
     buildOrdtestTable(rows);
+    return;
+  }
+
+  if (isOrdjakt) {
+    buildOrdjaktTable(rows);
     return;
   }
 
@@ -311,6 +320,155 @@ function buildOrdtestTable(rows) {
       td.appendChild(div);
       tr.appendChild(td);
     }
+
+    tableBody.appendChild(tr);
+  });
+
+  updateStickyScrollbar();
+  tableBody.querySelectorAll(".delete-student-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      deleteStudent(btn.dataset.id, btn.dataset.namn);
+    });
+  });
+}
+
+
+// -----------------------------------------------------
+// 📊 Ordjakt: upplåsta nivåer, bästa tid per nivå, minuttest-rekord
+// -----------------------------------------------------
+function formatOrdjaktTime(sec) {
+  if (sec == null || Number.isNaN(Number(sec))) return "—";
+  const s = Math.floor(Number(sec));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return `${m}:${String(r).padStart(2, "0")}`;
+}
+
+function buildOrdjaktTable(rows) {
+  headerRow.innerHTML = "";
+
+  const thName = document.createElement("th");
+  thName.className = "name-col sticky";
+  thName.textContent = "Elev";
+  headerRow.appendChild(thName);
+
+  const thUnlock = document.createElement("th");
+  thUnlock.className = "text-col";
+  thUnlock.textContent = "Upplåst";
+  thUnlock.title = "Högsta nivå eleven kan välja (1 = bara nivå 1; 8 = alla sju)";
+  headerRow.appendChild(thUnlock);
+
+  for (let lv = 1; lv <= 7; lv++) {
+    const th = document.createElement("th");
+    th.className = "text-col";
+    th.textContent = "Nivå " + lv;
+    th.title = "Bästa tid vid godkänt lopp (mål 2:30)";
+    headerRow.appendChild(th);
+  }
+
+  const thMin = document.createElement("th");
+  thMin.className = "text-col";
+  thMin.textContent = "Minuttest";
+  thMin.title = "Rekord: flest ord rätt på 1 minut";
+  headerRow.appendChild(thMin);
+
+  const sortedRows = rows.slice().sort((a, b) => (a.namn || "").localeCompare(b.namn || "", "sv"));
+
+  sortedRows.forEach((r) => {
+    const o = r.ordjakt && typeof r.ordjakt === "object" ? r.ordjakt : {};
+    const unlocked = Math.max(1, Number(o.unlockedLevel) || 1);
+    const levelStats = o.levelStats && typeof o.levelStats === "object" ? o.levelStats : {};
+
+    const tr = document.createElement("tr");
+
+    const tdName = document.createElement("td");
+    tdName.className = "name-col sticky";
+    const nameWrap = document.createElement("span");
+    nameWrap.className = "name-cell-wrap";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "delete-student-btn";
+    deleteBtn.title = "Radera elev från statistiken";
+    deleteBtn.setAttribute("aria-label", "Radera " + r.namn);
+    deleteBtn.textContent = "✕";
+    deleteBtn.dataset.id = r.id;
+    deleteBtn.dataset.namn = r.namn;
+    nameWrap.appendChild(deleteBtn);
+    nameWrap.appendChild(document.createTextNode(" " + (r.namn || "")));
+    tdName.appendChild(nameWrap);
+    tr.appendChild(tdName);
+
+    const tdUnlock = document.createElement("td");
+    tdUnlock.className = "text-col";
+    const divUnlock = document.createElement("div");
+    divUnlock.className = "cell";
+    divUnlock.textContent = unlocked >= 8 ? "1–7" : String(unlocked);
+    divUnlock.title =
+      unlocked >= 8
+        ? "Alla ordinarie nivåer upplåsta"
+        : `Kan spela nivå 1–${Math.min(7, unlocked)}`;
+    divUnlock.classList.add(unlocked >= 2 ? "green" : "yellow");
+    tdUnlock.appendChild(divUnlock);
+    tr.appendChild(tdUnlock);
+
+    for (let lv = 1; lv <= 7; lv++) {
+      const st = levelStats[String(lv)] || levelStats[lv] || {};
+      const best = st.bestTimeSeconds;
+      const attempts = Number(st.attempts) || 0;
+      const passed = Boolean(st.passed);
+      const last = st.lastPlayedAt;
+
+      const td = document.createElement("td");
+      td.className = "text-col";
+      const div = document.createElement("div");
+      div.className = "cell";
+      if (best != null) {
+        const ok = Number(best) <= ORDJAKT_TARGET_SEC;
+        div.classList.add(ok ? "green" : "yellow");
+        div.textContent = formatOrdjaktTime(best);
+      } else if (attempts > 0) {
+        div.classList.add("yellow");
+        div.textContent = "Övat";
+      } else {
+        div.classList.add("gray");
+        div.textContent = "";
+      }
+      const parts = [];
+      if (attempts) parts.push(`${attempts} försök`);
+      if (passed) parts.push("klar");
+      if (last) parts.push("senast " + String(last).slice(0, 10));
+      div.title = parts.length ? parts.join(" · ") : "Ej spelat";
+      td.appendChild(div);
+      tr.appendChild(td);
+    }
+
+    const mt = levelStats.minuttest || levelStats["minuttest"] || {};
+    const bestG = mt.bestGreenCount != null ? Number(mt.bestGreenCount) : null;
+    const mtAttempts = Number(mt.attempts) || 0;
+
+    const tdMt = document.createElement("td");
+    tdMt.className = "text-col";
+    const divMt = document.createElement("div");
+    divMt.className = "cell";
+    if (bestG != null && !Number.isNaN(bestG)) {
+      const pct = Math.min(100, Math.round((bestG / 150) * 100));
+      divMt.classList.add(cellClass(pct));
+      divMt.textContent = `${bestG} rätt`;
+      divMt.title =
+        (mtAttempts ? `${mtAttempts} försök` : "1+ försök") +
+        (mt.lastPlayedAt ? " · senast " + String(mt.lastPlayedAt).slice(0, 10) : "");
+    } else if (mtAttempts > 0) {
+      divMt.classList.add("yellow");
+      divMt.textContent = "—";
+      divMt.title = `${mtAttempts} försök (inget rekord sparat)`;
+    } else {
+      divMt.classList.add("gray");
+      divMt.textContent = "";
+      divMt.title = "Ej spelat";
+    }
+    tdMt.appendChild(divMt);
+    tr.appendChild(tdMt);
 
     tableBody.appendChild(tr);
   });
