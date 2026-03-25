@@ -452,8 +452,11 @@ function buildOrdjaktTable(rows) {
     const divMt = document.createElement("div");
     divMt.className = "cell";
     if (bestG != null && !Number.isNaN(bestG)) {
-      const pct = Math.min(100, Math.round((bestG / 150) * 100));
-      divMt.classList.add(cellClass(pct));
+      // Gränser för Minuttest (ord rätt på 1 minut):
+      // röd: 0–50, gul: 51–79, grön: 80+
+      if (bestG <= 50) divMt.classList.add("red");
+      else if (bestG <= 79) divMt.classList.add("yellow");
+      else divMt.classList.add("green");
       divMt.textContent = `${bestG} rätt`;
       divMt.title =
         (mtAttempts ? `${mtAttempts} försök` : "1+ försök") +
