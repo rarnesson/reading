@@ -1,12 +1,12 @@
 /**
- * Ordjakt – 5 nivåer, 60 ord per nivå (6 omgångar à 10 ord).
- * Nivå 1: 2–4 bokstäver, Nivå 2: 4–5, Nivå 3: 5–6, Nivå 4: 6–9, Nivå 5: sammansatta 8+.
+ * Ordjakt – nivå 1–7: 60 ord vardera (6 omgångar à 10). Måltid 2 min (120 s) på alla ordinarie nivåer.
+ * Minuttest: 150 ord i fast ordning, stegrande svårighet (egen lista).
  */
 window.ordjaktLevels = [
   {
     id: 1,
     title: "Nivå 1",
-    targetTimeSeconds: 180,
+    targetTimeSeconds: 120,
     words: [
       "av", "på", "ur", "om", "en", "ett", "två", "tre", "fyra", "fem",
       "sex", "sju", "nio", "tio", "ja", "nej", "nu", "så", "här", "dit",
@@ -19,7 +19,7 @@ window.ordjaktLevels = [
   {
     id: 2,
     title: "Nivå 2",
-    targetTimeSeconds: 200,
+    targetTimeSeconds: 120,
     words: [
       "skola", "penna", "fisk", "bröd", "mjölk", "bord", "stol", "katt", "hund", "barn",
       "vägg", "hatt", "skor", "rock", "jacka", "mössa", "vante", "byxor", "tröja", "kjol",
@@ -32,7 +32,7 @@ window.ordjaktLevels = [
   {
     id: 3,
     title: "Nivå 3",
-    targetTimeSeconds: 220,
+    targetTimeSeconds: 120,
     words: [
       "skriva", "lämna", "hämta", "sända", "behöva", "tycka", "vilja", "kunna", "måste", "borde",
       "skulle", "kunde", "ville", "aldrig", "alltid", "annars", "bakom", "börja", "invid", "därför",
@@ -45,7 +45,7 @@ window.ordjaktLevels = [
   {
     id: 4,
     title: "Nivå 4",
-    targetTimeSeconds: 260,
+    targetTimeSeconds: 120,
     words: [
       "bibliotek", "klassrum", "lärare", "läsning", "räkning", "skrivning", "bokstav", "bokhylla", "bokmärke", "skolmat",
       "skolkök", "skollov", "skolår", "skolbild", "skolform", "skolstart", "skolslut", "skolplan", "skolchef", "skolhus",
@@ -58,7 +58,7 @@ window.ordjaktLevels = [
   {
     id: 5,
     title: "Nivå 5",
-    targetTimeSeconds: 300,
+    targetTimeSeconds: 120,
     words: [
       "skolgård", "järnvägslinje", "fotbollsplan", "simanläggning", "badhusbyggnad", "bibliotekarie", "klasskamrat", "studieplan", "läroplan", "kunskapskrav",
       "bedömningsmatris", "självbedömning", "kamratbedömning", "utvecklingssamtal", "åtgärdsprogram", "extraanpassning", "undervisningsgrupp", "språkvalskurs", "modersmålsundervisning", "studievägledare",
@@ -67,5 +67,52 @@ window.ordjaktLevels = [
       "tempuslära", "preteritum", "supinumform", "particip", "bisatsled", "huvudsats", "satsraden", "textbindning", "texttyper", "berättande",
       "beskrivande", "instruerande", "argumenterande", "jämförande", "sammanfattande", "översiktlig", "detaljerad", "huvudtanke", "stödmening", "slutsats"
     ]
+  },
+  {
+    id: 6,
+    title: "Nivå 6",
+    targetTimeSeconds: 120,
+    words: [
+      "självständighetsförklaring", "miljökonsekvensbeskrivning", "grundlagstillämpning", "riksdagsordning", "regeringsform", "successionsordning", "tryckfrihetsförordning", "yttrandefrihetsgrundlag", "kommunfullmäktige", "regionfullmäktige",
+      "folkomröstningsförfarande", "proportionalitetsprincip", "rättssäkerhetsgaranti", "integritetskyddsombud", "personuppgiftsbiträde", "dataskyddsförordning", "kakvarningsmeddelande", "säkerhetskopieringsrutin", "lösenordsåterställning", "tvåfaktorsautentisering",
+      "översättningsminne", "språkteknologiverktyg", "korpuslingvistik", "morfologi", "syntaktik", "semantik", "pragmatik", "diskursanalys", "narratologi", "intertextualitet",
+      "epistemologi", "ontologi", "metodologi", "hypotesprövning", "stickprovsfördelning", "signifikansnivå", "konfidensintervall", "regressionsanalys", "korrelationskoefficient", "kausalitetsproblem",
+      "historiematerialism", "idealtyp", "hermeneutik", "fenomenologi", "etnografi", "longitudinell", "kvantitativ", "kvalitativ", "fokusgrupp", "enkätundersökning",
+      "bildningsidealtradition", "folkbildningsrörelse", "studiecirkelledning", "läromedelsutvärdering", "bedömningsunderlag", "åtgärdsprogramskrivning", "särskiltstödinsats", "anpassningsåtgärder", "dokumentationsplikt", "sekretessprövning"
+    ]
+  },
+  {
+    id: 7,
+    title: "Nivå 7",
+    targetTimeSeconds: 120,
+    words: [
+      "multidisciplinäransats", "tvärvetenskapligmetod", "transdisciplinärproblemlösning", "interdisciplinärforskning", "vetenskapsfilosofiskgrund", "verklighetsuppfattningsfråga", "hermeneutisktolkningsproblem", "fenomenologiskbeskrivning", "poststrukturalistiskanalys", "postkolonialidentitetsfråga",
+      "marknadsrationalitetskritik", "institutionellteoriramverk", "organisationskulturstudie", "maktresursfördelning", "socialrättviseprincip", "distributivrättvisebegrepp", "erkännandeteoretiskansats", "deliberativdemokratimodell", "participatoriskplanering", "transparensprincipimplementering",
+      "hållbarhetsutvecklingsmål", "klimatpåverkansberäkning", "koldioxidavtrycksreducering", "cirkulärekonomiprincip", "biologiskmångfaldsstrategi", "ekosystemtjänstvärdering", "miljöbalkstillämpning", "naturvårdsbiotopskydd", "vattenförvaltningsområde", "övergödningsåtgärdsprogram",
+      "neurovetenskapligkognitionsforskning", "psykofarmakologiskbehandling", "epidemiologiskriskbedömning", "statistiskosäkerhetsmarginal", "randomiseradkontrolleradstudie", "metastudiesystematisköversikt", "peerreviewkvalitetsgranskning", "forskningsetiskprövningsnämnd", "informationsmedgivandeprocess", "personidentitetsskyddsregel",
+      "digitaliseringsstrategiimplementering", "cybersäkerhetsincidenthantering", "informationsklassificeringsmodell", "kryptografisknyckelhantering", "blockkedjetekniktillämpning", "algoritmiskbeslutsfattandeetik", "maskininlärningsmodellträning", "datadrivenprediktionsanalys", "robotiseringsarbetsmarknadseffekt", "automationstekniskprocessoptimering",
+      "internationellrättskipningsmekanism", "folkrättssubjektstatus", "diplomatiskimmunitetsprincip", "humanitärrättsskyddsnorm", "flyktingkonventionstillämpning", "asylrättsligprövningsordning", "gränskontrollsamverkansmodell", "migrationsekonomiskonsekvens", "integrationspolitiskåtgärdsprogram", "mångfaldsstrategiförankring"
+    ]
   }
+];
+
+/**
+ * Minuttest: exakt 150 unika ord, stegrande längd/komplexitet (korta → mycket långa).
+ */
+window.ordjaktMinuteWords = [
+  "nu", "ja", "nej", "på", "ur", "om", "vi", "du", "se", "ta",
+  "hus", "bil", "bok", "mat", "sol", "tid", "väg", "rum", "kö", "öra",
+  "skola", "penna", "bröd", "katt", "bord", "stol", "hund", "barn", "vägg", "ost",
+  "tåg", "buss", "stad", "land", "salt", "glass", "bulle", "ris", "lamm", "älg",
+  "skriva", "lämna", "hämta", "behöva", "tycka", "vilja", "kunna", "måste", "aldrig", "alltid",
+  "därför", "genom", "ganska", "ibland", "kanske", "mellan", "mycket", "någon", "oftast", "sedan",
+  "bibliotek", "klassrum", "läsning", "skrivning", "bokstav", "bokhylla", "skollov", "engelska", "historia", "geografi",
+  "tentamen", "betygsbok", "skolmatsal", "idrottshall", "gymnastik", "regelbok", "domslut", "målvakt", "mittfält", "målchans",
+  "järnvägslinje", "fotbollsplan", "bibliotekarie", "studieplan", "läroplan", "kunskapskrav", "självbedömning", "utvecklingssamtal", "åtgärdsprogram", "språkvalskurs",
+  "modersmålsundervisning", "matematiksvårigheter", "rättstavning", "särskrivning", "bestämdform", "tempuslära", "supinumform", "bisatsled", "textbindning", "argumenterande",
+  "sammanfattande", "källkritik", "källhänvisning", "citattecken", "direktsättning", "miljökonsekvensbeskrivning", "kommunfullmäktige", "dataskyddsförordning", "tvåfaktorsautentisering", "diskursanalytiskmetod",
+  "metodologiskstringens", "konfidensintervalluppskattning", "hermeneutiskcirkel", "etnografiskfältstudie", "läromedelsutvärdering", "sekretessprövning", "självständighetsförklaring", "yttrandefrihetsgrundlag", "integritetskyddsombud", "narratologiskperspektiv",
+  "historiematerialism", "kvalitativintervjuguide", "folkbildningsrörelse", "multidiciplinärkunskapsintegration", "tvärvetenskapligforskningsansats", "epistemologiskvetenskapsfilosofi", "postkolonialidentitetsanalys", "neoliberalmarknadsrationalitet", "deliberativdemokratimodell", "hållbarhetsutvecklingsmål",
+  "koldioxidavtrycksreducering", "cirkulärekonomiprincip", "ekosystemtjänstvärdering", "neurovetenskapligkognitionsforskning", "randomiseradkontrolleradstudie", "forskningsetiskprövningsnämnd", "digitaliseringsstrategiimplementering", "cybersäkerhetsincidenthantering", "algoritmiskbeslutsfattandeetik", "internationellrättskipningsmekanism",
+  "humanitärrättsskyddsnorm", "flyktingkonventionstillämpning", "mångfaldsstrategiförankring", "transdisciplinärproblemlösning", "institutionellteoriramverk", "erkännandeteoretiskansats", "participatoriskplaneringsprocess", "biologiskmångfaldsstrategi", "övergödningsåtgärdsprogram", "psykofarmakologiskbehandlingsöversikt"
 ];

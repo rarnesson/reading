@@ -11,15 +11,19 @@ const elevId = `${klass}_${name.trim().toLowerCase().replace(/\s+/g, "_")}`;
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 let levels = [];
+let minuteWords = [];
 let ordjaktData = { unlockedLevel: 1, levelStats: {} };
 
 let currentLevel = null;
+/** @type {boolean} */
+let minuteMode = false;
 let shuffledWords = [];
 let batches = [];
 let batchIndex = 0;
 /** @type {("pending"|"done"|"skip")[]} */
 let wordStates = [];
 let timerMs = 0;
+let minuteRemainingMs = 0;
 let timerRunning = true;
 let timerPaused = false;
 let timerInterval = null;
@@ -38,6 +42,10 @@ const timerDisplay = document.getElementById("timerDisplay");
 const timerToggleBtn = document.getElementById("timerToggleBtn");
 const nextBatchBtn = document.getElementById("nextBatchBtn");
 const gameTitle = document.getElementById("gameTitle");
+const batchRow = document.getElementById("batchRow");
+const minuteRow = document.getElementById("minuteRow");
+const minuteScoreRow = document.getElementById("minuteScoreRow");
+const minuteGreenCountEl = document.getElementById("minuteGreenCount");
 
 function escapeRegExp(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -53,6 +61,11 @@ function normalize(s) {
 function transcriptMatches(transcript, target) {
   const nw = normalize(target);
   if (!nw) return false;
+  if (nw.includes(" ")) {
+    const parts = nw.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return false;
+    return parts.every((p) => transcriptMatches(transcript, p));
+  }
   const nt = normalize(transcript);
   if (nt === nw) return true;
   const tokens = nt.split(/[.,!?;:()\s]+/).filter(Boolean);
@@ -90,14 +103,20 @@ function formatTime(sec) {
 function loadLevels(cb) {
   if (window.ordjaktLevels && window.ordjaktLevels.length > 0) {
     levels = window.ordjaktLevels.slice();
+    minuteWords = Array.isArray(window.ordjaktMinuteWords)
+      ? window.ordjaktMinuteWords.slice()
+      : [];
     cb();
     return;
   }
   const base = window.location.href.replace(/\/[^/]*$/, "/");
   const script = document.createElement("script");
-  script.src = base + "texts/ordjakt-levels.js?v=1";
+  script.src = base + "texts/ordjakt-levels.js?v=2";
   script.onload = () => {
     levels = (window.ordjaktLevels || []).slice();
+    minuteWords = Array.isArray(window.ordjaktMinuteWords)
+      ? window.ordjaktMinuteWords.slice()
+      : [];
     cb();
   };
   script.onerror = () => alert("Kunde inte ladda ordlistan.");
@@ -153,6 +172,35 @@ async function saveOrdjaktResult(levelId, passed, timeSeconds) {
   ordjaktData = ordjakt;
 }
 
+async function saveOrdjaktMinuteTest(greenCount) {
+  const ref = db.collection("readingResults").doc(elevId);
+  const snap = await ref.get();
+  const data = snap.exists ? snap.data() : { namn: name, klass: klass };
+  const ordjakt = data.ordjakt && typeof data.ordjakt === "object"
+    ? { ...data.ordjakt, levelStats: { ...(data.ordjakt.levelStats || {}) } }
+    : { unlockedLevel: 1, levelStats: {} };
+
+  const key = "minuttest";
+  const prev = ordjakt.levelStats[key] || {};
+  const attempts = (Number(prev.attempts) || 0) + 1;
+  const bestPrev = prev.bestGreenCount != null ? Number(prev.bestGreenCount) : null;
+  const bestGreenCount = bestPrev == null || greenCount > bestPrev ? greenCount : bestPrev;
+
+  ordjakt.levelStats[key] = {
+    ...prev,
+    attempts,
+    bestGreenCount,
+    lastGreenCount: greenCount,
+    lastPlayedAt: new Date().toISOString(),
+  };
+
+  await ref.set(
+    { ...data, ordjakt, senaste: new Date().toISOString() },
+    { merge: true }
+  );
+  ordjaktData = ordjakt;
+}
+
 function stopTimer() {
   if (timerInterval) {
     clearInterval(timerInterval);
@@ -160,8 +208,31 @@ function stopTimer() {
   }
 }
 
+function updateMinuteScoreDisplay() {
+  const n = wordStates.filter((s) => s === "done").length;
+  if (minuteGreenCountEl) minuteGreenCountEl.textContent = String(n);
+}
+
 function startTimerLoop() {
   stopTimer();
+  if (minuteMode) {
+    minuteRemainingMs = 60000;
+    timerDisplay.textContent = formatTime(minuteRemainingMs / 1000);
+    timerInterval = setInterval(() => {
+      if (timerRunning && !timerPaused) {
+        minuteRemainingMs -= 100;
+        if (minuteRemainingMs <= 0) {
+          minuteRemainingMs = 0;
+          timerDisplay.textContent = "0:00";
+          stopTimer();
+          finishMinuteTest();
+          return;
+        }
+        timerDisplay.textContent = formatTime(minuteRemainingMs / 1000);
+      }
+    }, 100);
+    return;
+  }
   timerInterval = setInterval(() => {
     if (timerRunning && !timerPaused) timerMs += 100;
     timerDisplay.textContent = formatTime(timerMs / 1000);
@@ -195,14 +266,14 @@ function setupRecognition() {
   recognition.maxAlternatives = 3;
 
   recognition.onresult = (ev) => {
-    const batch = batches[batchIndex];
-    if (!batch) return;
     let any = false;
+    const maxIdx = minuteMode ? shuffledWords.length : (batches[batchIndex] ? batches[batchIndex].length : 0);
+    const startIdx = minuteMode ? 0 : batchIndex * 10;
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
       const res = ev.results[i];
       const text = res[0].transcript;
-      for (let j = 0; j < batch.length; j++) {
-        const globalIdx = batchIndex * 10 + j;
+      for (let j = 0; j < maxIdx; j++) {
+        const globalIdx = minuteMode ? j : batchIndex * 10 + j;
         if (wordStates[globalIdx] !== "pending") continue;
         const w = shuffledWords[globalIdx];
         if (transcriptMatches(text, w)) {
@@ -213,7 +284,8 @@ function setupRecognition() {
     }
     if (any) {
       renderWordChips();
-      if (batchComplete()) {
+      if (minuteMode) updateMinuteScoreDisplay();
+      if (!minuteMode && batchComplete()) {
         stopRecognition();
         nextBatchBtn.style.display = "block";
       }
@@ -229,6 +301,16 @@ function setupRecognition() {
   recognition.onend = () => {
     recognitionActive = false;
     if (gameScreen.style.display === "none") return;
+    if (minuteMode) {
+      if (minuteRemainingMs <= 0) return;
+      try {
+        recognition.start();
+        recognitionActive = true;
+      } catch (_) {
+        /* ignore */
+      }
+      return;
+    }
     const batch = batches[batchIndex];
     if (!batch || batchComplete()) return;
     try {
@@ -250,10 +332,11 @@ function setupRecognition() {
 
 function renderWordChips() {
   wordGrid.innerHTML = "";
-  const batch = batches[batchIndex];
+  wordGrid.classList.toggle("word-grid--minute", minuteMode);
+  const batch = minuteMode ? shuffledWords : batches[batchIndex];
   if (!batch) return;
   batch.forEach((_, j) => {
-    const globalIdx = batchIndex * 10 + j;
+    const globalIdx = minuteMode ? j : batchIndex * 10 + j;
     const w = shuffledWords[globalIdx];
     const st = wordStates[globalIdx];
     const btn = document.createElement("button");
@@ -270,7 +353,8 @@ function renderWordChips() {
         if (wordStates[globalIdx] !== "pending") return;
         wordStates[globalIdx] = "skip";
         renderWordChips();
-        if (batchComplete()) {
+        if (minuteMode) updateMinuteScoreDisplay();
+        if (!minuteMode && batchComplete()) {
           stopRecognition();
           nextBatchBtn.style.display = "block";
         }
@@ -290,6 +374,7 @@ function batchComplete() {
 }
 
 function showLevelPicker() {
+  minuteMode = false;
   levelScreen.style.display = "block";
   gameScreen.style.display = "none";
   resultScreen.style.display = "none";
@@ -310,9 +395,19 @@ function showLevelPicker() {
     btn.onclick = () => startLevel(lv.id);
     wrap.appendChild(btn);
   });
+
+  const minuteBtn = document.createElement("button");
+  minuteBtn.type = "button";
+  minuteBtn.className = "level-btn level-btn-minute";
+  const mstats = ordjaktData.levelStats.minuttest;
+  const bestM = mstats && mstats.bestGreenCount != null ? mstats.bestGreenCount : "—";
+  minuteBtn.textContent = `Minuttest · 1 minut · 150 ord (stegrande) · bäst ${bestM} rätt`;
+  minuteBtn.onclick = () => startMinuteTest();
+  wrap.appendChild(minuteBtn);
 }
 
 function startLevel(levelId) {
+  minuteMode = false;
   currentLevel = levels.find((l) => l.id === levelId);
   if (!currentLevel) return;
   const maxLv = Math.max(1, ordjaktData.unlockedLevel || 1);
@@ -329,6 +424,10 @@ function startLevel(levelId) {
   timerRunning = true;
   timerPaused = false;
   timerToggleBtn.textContent = "Pausa timer";
+  timerToggleBtn.style.display = "inline-block";
+  if (batchRow) batchRow.style.display = "block";
+  if (minuteRow) minuteRow.style.display = "none";
+  if (minuteScoreRow) minuteScoreRow.style.display = "none";
 
   levelScreen.style.display = "none";
   gameScreen.style.display = "block";
@@ -349,7 +448,45 @@ function startLevel(levelId) {
   bannerMeta.textContent = `${currentLevel.title} · omgång 1/${batches.length}`;
 }
 
+function startMinuteTest() {
+  if (!minuteWords.length) {
+    alert("Minuttest-ordlistan saknas.");
+    return;
+  }
+  minuteMode = true;
+  currentLevel = null;
+  shuffledWords = minuteWords.slice();
+  batches = [shuffledWords];
+  batchIndex = 0;
+  wordStates = shuffledWords.map(() => "pending");
+
+  timerMs = 0;
+  timerRunning = true;
+  timerPaused = false;
+  timerToggleBtn.textContent = "Pausa nedräkning";
+  timerToggleBtn.style.display = "inline-block";
+  if (batchRow) batchRow.style.display = "none";
+  if (minuteRow) minuteRow.style.display = "block";
+  if (minuteScoreRow) minuteScoreRow.style.display = "block";
+  updateMinuteScoreDisplay();
+
+  levelScreen.style.display = "none";
+  gameScreen.style.display = "block";
+  resultScreen.style.display = "none";
+  nextBatchBtn.style.display = "none";
+
+  gameTitle.textContent = "Minuttest";
+  timerDisplay.textContent = "1:00";
+  startTimerLoop();
+
+  renderWordChips();
+  setupRecognition();
+
+  bannerMeta.textContent = "Minuttest · 1 minut";
+}
+
 function goNextBatch() {
+  if (minuteMode) return;
   if (!batchComplete()) return;
   stopRecognition();
   batchIndex++;
@@ -380,8 +517,9 @@ function finishLevel() {
   document.getElementById("resultTitle").textContent = passed ? "Nivån är klar!" : "Tiden räckte inte";
   document.getElementById("resultText").textContent =
     `Din tid: ${formatTime(elapsedSec)}. Mål: ${formatTime(target)}.`;
+  const maxLevelId = Math.max(...levels.map((l) => l.id));
   document.getElementById("resultExtra").textContent = passed
-    ? (currentLevel.id < 5 ? "Nästa nivå är upplåst." : "Du har klarat den svåraste nivån!")
+    ? (currentLevel.id < maxLevelId ? "Nästa nivå är upplåst." : "Du har klarat högsta nivån!")
     : "Försök igen – pausa timern om du behöver paus, eller öva orden först.";
 
   saveOrdjaktResult(currentLevel.id, passed, elapsedSec).then(() => {
@@ -399,9 +537,55 @@ function finishLevel() {
   };
 }
 
+function finishMinuteTest() {
+  stopRecognition();
+  stopTimer();
+  timerRunning = false;
+  minuteMode = false;
+
+  const greenCount = wordStates.filter((s) => s === "done").length;
+
+  gameScreen.style.display = "none";
+  resultScreen.style.display = "block";
+  bannerMeta.textContent = "Resultat";
+
+  document.getElementById("resultTitle").textContent = "Minuttest klart!";
+  document.getElementById("resultText").textContent =
+    `Du hann läsa ${greenCount} ord rätt på en minut (av 150 möjliga i listan).`;
+  const mstats = ordjaktData.levelStats.minuttest;
+  const bestPrev = mstats && mstats.bestGreenCount != null ? Number(mstats.bestGreenCount) : null;
+  let extra = "";
+  if (bestPrev == null) {
+    extra = "Fortsätt träna för att höja rekordet.";
+  } else if (greenCount > bestPrev) {
+    extra = "Nytt personbästa!";
+  } else if (greenCount === bestPrev) {
+    extra = "Samma som ditt bästa resultat hittills.";
+  } else {
+    extra = `Ditt bästa hittills: ${bestPrev} rätt.`;
+  }
+  document.getElementById("resultExtra").textContent = extra;
+
+  saveOrdjaktMinuteTest(greenCount).then(() => {
+    loadFirebaseOrdjakt();
+  });
+
+  document.getElementById("againBtn").onclick = () => {
+    startMinuteTest();
+  };
+  document.getElementById("levelPickBtn").onclick = () => {
+    loadFirebaseOrdjakt().then(showLevelPicker);
+  };
+  document.getElementById("homeBtn").onclick = () => {
+    window.location.href = "index.html";
+  };
+}
+
 timerToggleBtn.addEventListener("click", () => {
   timerPaused = !timerPaused;
-  timerToggleBtn.textContent = timerPaused ? "Fortsätt timer" : "Pausa timer";
+  timerToggleBtn.textContent = timerPaused
+    ? (minuteMode ? "Fortsätt nedräkning" : "Fortsätt timer")
+    : (minuteMode ? "Pausa nedräkning" : "Pausa timer");
 });
 
 nextBatchBtn.addEventListener("click", goNextBatch);

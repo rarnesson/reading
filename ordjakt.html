@@ -51,6 +51,22 @@
     .word-chip.done { background: #d3f9d8; border-color: #198754; color: #0d4124; cursor: default; }
     .word-chip.skip { background: #ffe3e3; border-color: #dc3545; color: #842029; cursor: default; }
     .word-chip.pending { }
+    .word-grid--minute {
+      max-height: 52vh;
+      overflow-y: auto;
+      justify-content: flex-start;
+      align-content: flex-start;
+      padding: 8px;
+      background: #f1f3f5;
+      border-radius: 12px;
+      border: 1px solid #dee2e6;
+    }
+    .word-grid--minute .word-chip { font-size: 0.82rem; padding: 6px 10px; }
+    .level-btn.level-btn-minute {
+      background: linear-gradient(135deg, #fd7e14, #e8590c);
+      margin-top: 8px;
+    }
+    .level-btn.level-btn-minute:hover { filter: brightness(1.06); }
     .mic-status { text-align: center; font-size: 0.9em; color: #666; margin: 0.5em 0 1em; }
     .mic-status.error { color: #c92a2a; }
     .main-btn {
@@ -98,16 +114,18 @@
     <div id="levelScreen">
       <h2>Ordjakt</h2>
       <p class="meta-row">Läs orden högt. När du hör rätt ord blir det grönt. Om mikrofonen strular: tryck på ordet så markeras det rött och du kan gå vidare.</p>
-      <p class="meta-row">60 ord i sex omgångar om tio ord. Pausa timern vid behov – du klarar nivån om tiden är inom målet.</p>
+      <p class="meta-row">Sju nivåer: 60 ord i sex omgångar. Måltid 2 minuter – pausa vid behov. Längst ner: Minuttest (1 minut, 150 ord).</p>
       <div id="levelButtons" class="level-pick"></div>
     </div>
 
     <div id="gameScreen" style="display:none;">
       <h2 id="gameTitle">Nivå</h2>
-      <p class="meta-row">Omgång <span id="batchNum">1</span> av <span id="batchTotal">6</span> · Måltid: <span id="targetTimeLabel">—</span></p>
+      <p class="meta-row" id="batchRow">Omgång <span id="batchNum">1</span> av <span id="batchTotal">6</span> · Måltid: <span id="targetTimeLabel">—</span></p>
+      <p class="meta-row" id="minuteRow" style="display:none;">150 ord · läs rätt så många du kan · <strong>1 minut</strong></p>
       <p class="meta-row">Tid: <span class="timer-display" id="timerDisplay">0:00</span>
         <button type="button" id="timerToggleBtn" class="main-btn" style="display:inline-block;margin-left:12px;padding:6px 14px;font-size:0.95em;">Pausa timer</button>
       </p>
+      <p class="meta-row" id="minuteScoreRow" style="display:none;">Lästa rätt hittills: <span id="minuteGreenCount">0</span></p>
       <div class="word-grid" id="wordGrid"></div>
       <p class="mic-status" id="micStatus">Mikrofon: startar …</p>
       <button type="button" id="nextBatchBtn" class="main-btn" style="display:none;">Nästa omgång</button>
