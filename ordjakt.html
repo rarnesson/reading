@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ordjakt – läs högt</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { margin: 0; font-family: "Segoe UI", Tahoma, sans-serif; background: url("bg.jpg") no-repeat center center fixed; background-size: cover; color: #222; }
+    .banner {
+      background: rgba(255,255,255,0.9);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 3px solid #7950f2;
+      font-weight: 600;
+    }
+    .ordjakt-container {
+      max-width: 640px;
+      margin: 32px auto;
+      background: rgba(255,255,255,0.95);
+      padding: 28px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+    .ordjakt-container h2 { color: #7950f2; margin-top: 0; text-align: center; font-size: 1.6em; }
+    .meta-row { text-align: center; font-size: 0.95em; color: #555; margin-bottom: 1em; }
+    .timer-display { font-variant-numeric: tabular-nums; font-weight: 700; color: #364fc7; }
+    .word-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 1.2em 0;
+      min-height: 120px;
+    }
+    .word-chip {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 2px solid #ced4da;
+      background: #f8f9fa;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.12s, border-color 0.2s, background 0.2s;
+      user-select: none;
+    }
+    .word-chip:hover:not(.done):not(.skip) { transform: scale(1.03); border-color: #7950f2; }
+    .word-chip.done { background: #d3f9d8; border-color: #198754; color: #0d4124; cursor: default; }
+    .word-chip.skip { background: #ffe3e3; border-color: #dc3545; color: #842029; cursor: default; }
+    .word-chip.pending { }
+    .mic-status { text-align: center; font-size: 0.9em; color: #666; margin: 0.5em 0 1em; }
+    .mic-status.error { color: #c92a2a; }
+    .main-btn {
+      display: block;
+      margin: 12px auto 0;
+      background: #7950f2;
+      border: none;
+      color: white;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 1.05em;
+      cursor: pointer;
+    }
+    .main-btn:hover { background: #6741d9; }
+    .main-btn.secondary { background: #6c757d; }
+    .main-btn.secondary:hover { background: #5c636a; }
+    .main-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .level-pick { display: flex; flex-direction: column; gap: 10px; margin-top: 1em; }
+    .level-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      background: linear-gradient(135deg, #9775fa, #7950f2);
+      color: white;
+    }
+    .level-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .level-btn:not(:disabled):hover { filter: brightness(1.05); }
+    .hint { font-size: 0.88em; color: #666; text-align: center; margin-top: 1em; line-height: 1.45; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+  <div class="banner">
+    <span>🔊 Ordjakt</span>
+    <span id="bannerMeta">—</span>
+    <a href="index.html" style="color:#333;">Tillbaka</a>
+  </div>
+
+  <div class="ordjakt-container">
+    <div id="levelScreen">
+      <h2>Ordjakt</h2>
+      <p class="meta-row">Läs orden högt. När du hör rätt ord blir det grönt. Om mikrofonen strular: tryck på ordet så markeras det rött och du kan gå vidare.</p>
+      <p class="meta-row">60 ord i sex omgångar om tio ord. Pausa timern vid behov – du klarar nivån om tiden är inom målet.</p>
+      <div id="levelButtons" class="level-pick"></div>
+    </div>
+
+    <div id="gameScreen" style="display:none;">
+      <h2 id="gameTitle">Nivå</h2>
+      <p class="meta-row">Omgång <span id="batchNum">1</span> av <span id="batchTotal">6</span> · Måltid: <span id="targetTimeLabel">—</span></p>
+      <p class="meta-row">Tid: <span class="timer-display" id="timerDisplay">0:00</span>
+        <button type="button" id="timerToggleBtn" class="main-btn" style="display:inline-block;margin-left:12px;padding:6px 14px;font-size:0.95em;">Pausa timer</button>
+      </p>
+      <div class="word-grid" id="wordGrid"></div>
+      <p class="mic-status" id="micStatus">Mikrofon: startar …</p>
+      <button type="button" id="nextBatchBtn" class="main-btn" style="display:none;">Nästa omgång</button>
+    </div>
+
+    <div id="resultScreen" style="display:none;">
+      <h2 id="resultTitle">Klart!</h2>
+      <p id="resultText" class="meta-row"></p>
+      <p id="resultExtra" class="meta-row"></p>
+      <button type="button" id="againBtn" class="main-btn">Försök igen</button>
+      <button type="button" id="levelPickBtn" class="main-btn secondary">Välj nivå</button>
+      <button type="button" id="homeBtn" class="main-btn secondary">Till startsidan</button>
+    </div>
+  </div>
+
+  <script src="ordjakt.js" defer></script>
+</body>
+</html>

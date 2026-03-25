@@ -15,3 +15,6 @@ Thumbs.db
 
 # Node (om du använder npm någon gång)
 node_modules/
+
+# Firebase CLI cache (lokal)
+.firebase/

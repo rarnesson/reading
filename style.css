@@ -70,6 +70,12 @@ body.bg {
   .btn-ordtest:hover {
     background: linear-gradient(135deg, #20c997, #0ca678) !important;
   }
+  .btn-ordjakt {
+    background: linear-gradient(135deg, #9775fa, #7950f2) !important;
+  }
+  .btn-ordjakt:hover {
+    background: linear-gradient(135deg, #b197fc, #9775fa) !important;
+  }
 
   /* Top banner */
   .top-bar {

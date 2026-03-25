@@ -24,6 +24,7 @@
       <button id="faktaBtn" class="btn-fakta">📋 Träna faktatexter</button>
       <button id="berattandeBtn" class="btn-berattande">📖 Läs först, svara sen</button>
       <button id="ordtestBtn" class="btn-ordtest">📝 Ordförståelsetest</button>
+      <button id="ordjaktBtn" class="btn-ordjakt">🔊 Ordjakt</button>
     </div>
   </div>
 
@@ -45,10 +46,19 @@
       localStorage.setItem("reading_class", klass);
       window.location.href = "ordtest.html";
     }
+    function goOrdjakt() {
+      const name = document.getElementById("nameInput").value.trim();
+      const klass = document.getElementById("classSelect").value;
+      if (!name || !klass) return alert("Välj klass och skriv ditt namn!");
+      localStorage.setItem("reading_name", name);
+      localStorage.setItem("reading_class", klass);
+      window.location.href = "ordjakt.html";
+    }
     document.getElementById("startBtn").addEventListener("click", () => go(""));
     document.getElementById("faktaBtn").addEventListener("click", () => go("fakta"));
     document.getElementById("berattandeBtn").addEventListener("click", () => go("berattande"));
     document.getElementById("ordtestBtn").addEventListener("click", goOrdtest);
+    document.getElementById("ordjaktBtn").addEventListener("click", goOrdjakt);
   </script>
 
 </body>
