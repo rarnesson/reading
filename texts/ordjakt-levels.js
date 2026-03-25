@@ -1,12 +1,12 @@
 /**
- * Ordjakt – nivå 1–7: 60 ord vardera (6 omgångar à 10). Måltid 2 min (120 s) på alla ordinarie nivåer.
- * Minuttest: 150 ord i fast ordning, stegrande svårighet (egen lista).
+ * Ordjakt – nivå 1–7: 60 ord vardera (6 omgångar à 10). Måltid 2 min 30 s (150 s) på alla ordinarie nivåer.
+ * Minuttest: 150 ord, långsammare progression, mest vardagssvenska (5–8 bokstäver i stora delen).
  */
 window.ordjaktLevels = [
   {
     id: 1,
     title: "Nivå 1",
-    targetTimeSeconds: 120,
+    targetTimeSeconds: 150,
     words: [
       "av", "på", "ur", "om", "en", "ett", "två", "tre", "fyra", "fem",
       "sex", "sju", "nio", "tio", "ja", "nej", "nu", "så", "här", "dit",
@@ -19,7 +19,7 @@ window.ordjaktLevels = [
   {
     id: 2,
     title: "Nivå 2",
-    targetTimeSeconds: 120,
+    targetTimeSeconds: 150,
     words: [
       "skola", "penna", "fisk", "bröd", "mjölk", "bord", "stol", "katt", "hund", "barn",
       "vägg", "hatt", "skor", "rock", "jacka", "mössa", "vante", "byxor", "tröja", "kjol",
@@ -32,7 +32,7 @@ window.ordjaktLevels = [
   {
     id: 3,
     title: "Nivå 3",
-    targetTimeSeconds: 120,
+    targetTimeSeconds: 150,
     words: [
       "skriva", "lämna", "hämta", "sända", "behöva", "tycka", "vilja", "kunna", "måste", "borde",
       "skulle", "kunde", "ville", "aldrig", "alltid", "annars", "bakom", "börja", "invid", "därför",
@@ -45,7 +45,7 @@ window.ordjaktLevels = [
   {
     id: 4,
     title: "Nivå 4",
-    targetTimeSeconds: 120,
+    targetTimeSeconds: 150,
     words: [
       "bibliotek", "klassrum", "lärare", "läsning", "räkning", "skrivning", "bokstav", "bokhylla", "bokmärke", "skolmat",
       "skolkök", "skollov", "skolår", "skolbild", "skolform", "skolstart", "skolslut", "skolplan", "skolchef", "skolhus",
@@ -58,7 +58,7 @@ window.ordjaktLevels = [
   {
     id: 5,
     title: "Nivå 5",
-    targetTimeSeconds: 120,
+    targetTimeSeconds: 150,
     words: [
       "skolgård", "järnvägslinje", "fotbollsplan", "simanläggning", "badhusbyggnad", "bibliotekarie", "klasskamrat", "studieplan", "läroplan", "kunskapskrav",
       "bedömningsmatris", "självbedömning", "kamratbedömning", "utvecklingssamtal", "åtgärdsprogram", "extraanpassning", "undervisningsgrupp", "språkvalskurs", "modersmålsundervisning", "studievägledare",
@@ -71,7 +71,7 @@ window.ordjaktLevels = [
   {
     id: 6,
     title: "Nivå 6",
-    targetTimeSeconds: 120,
+    targetTimeSeconds: 150,
     words: [
       "självständighetsförklaring", "miljökonsekvensbeskrivning", "grundlagstillämpning", "riksdagsordning", "regeringsform", "successionsordning", "tryckfrihetsförordning", "yttrandefrihetsgrundlag", "kommunfullmäktige", "regionfullmäktige",
       "folkomröstningsförfarande", "proportionalitetsprincip", "rättssäkerhetsgaranti", "integritetskyddsombud", "personuppgiftsbiträde", "dataskyddsförordning", "kakvarningsmeddelande", "säkerhetskopieringsrutin", "lösenordsåterställning", "tvåfaktorsautentisering",
@@ -84,7 +84,7 @@ window.ordjaktLevels = [
   {
     id: 7,
     title: "Nivå 7",
-    targetTimeSeconds: 120,
+    targetTimeSeconds: 150,
     words: [
       "multidisciplinäransats", "tvärvetenskapligmetod", "transdisciplinärproblemlösning", "interdisciplinärforskning", "vetenskapsfilosofiskgrund", "verklighetsuppfattningsfråga", "hermeneutisktolkningsproblem", "fenomenologiskbeskrivning", "poststrukturalistiskanalys", "postkolonialidentitetsfråga",
       "marknadsrationalitetskritik", "institutionellteoriramverk", "organisationskulturstudie", "maktresursfördelning", "socialrättviseprincip", "distributivrättvisebegrepp", "erkännandeteoretiskansats", "deliberativdemokratimodell", "participatoriskplanering", "transparensprincipimplementering",
@@ -97,22 +97,22 @@ window.ordjaktLevels = [
 ];
 
 /**
- * Minuttest: exakt 150 unika ord, stegrande längd/komplexitet (korta → mycket långa).
+ * Minuttest: 150 unika ord. Få ord med 2–3 bokstäver; tät mitt med 5–8 bokstäver; långsamt steg mot lite längre sammansättningar.
  */
 window.ordjaktMinuteWords = [
-  "nu", "ja", "nej", "på", "ur", "om", "vi", "du", "se", "ta",
-  "hus", "bil", "bok", "mat", "sol", "tid", "väg", "rum", "kö", "öra",
-  "skola", "penna", "bröd", "katt", "bord", "stol", "hund", "barn", "vägg", "ost",
-  "tåg", "buss", "stad", "land", "salt", "glass", "bulle", "ris", "lamm", "älg",
-  "skriva", "lämna", "hämta", "behöva", "tycka", "vilja", "kunna", "måste", "aldrig", "alltid",
-  "därför", "genom", "ganska", "ibland", "kanske", "mellan", "mycket", "någon", "oftast", "sedan",
-  "bibliotek", "klassrum", "läsning", "skrivning", "bokstav", "bokhylla", "skollov", "engelska", "historia", "geografi",
-  "tentamen", "betygsbok", "skolmatsal", "idrottshall", "gymnastik", "regelbok", "domslut", "målvakt", "mittfält", "målchans",
-  "järnvägslinje", "fotbollsplan", "bibliotekarie", "studieplan", "läroplan", "kunskapskrav", "självbedömning", "utvecklingssamtal", "åtgärdsprogram", "språkvalskurs",
-  "modersmålsundervisning", "matematiksvårigheter", "rättstavning", "särskrivning", "bestämdform", "tempuslära", "supinumform", "bisatsled", "textbindning", "argumenterande",
-  "sammanfattande", "källkritik", "källhänvisning", "citattecken", "direktsättning", "miljökonsekvensbeskrivning", "kommunfullmäktige", "dataskyddsförordning", "tvåfaktorsautentisering", "diskursanalytiskmetod",
-  "metodologiskstringens", "konfidensintervalluppskattning", "hermeneutiskcirkel", "etnografiskfältstudie", "läromedelsutvärdering", "sekretessprövning", "självständighetsförklaring", "yttrandefrihetsgrundlag", "integritetskyddsombud", "narratologiskperspektiv",
-  "historiematerialism", "kvalitativintervjuguide", "folkbildningsrörelse", "multidiciplinärkunskapsintegration", "tvärvetenskapligforskningsansats", "epistemologiskvetenskapsfilosofi", "postkolonialidentitetsanalys", "neoliberalmarknadsrationalitet", "deliberativdemokratimodell", "hållbarhetsutvecklingsmål",
-  "koldioxidavtrycksreducering", "cirkulärekonomiprincip", "ekosystemtjänstvärdering", "neurovetenskapligkognitionsforskning", "randomiseradkontrolleradstudie", "forskningsetiskprövningsnämnd", "digitaliseringsstrategiimplementering", "cybersäkerhetsincidenthantering", "algoritmiskbeslutsfattandeetik", "internationellrättskipningsmekanism",
-  "humanitärrättsskyddsnorm", "flyktingkonventionstillämpning", "mångfaldsstrategiförankring", "transdisciplinärproblemlösning", "institutionellteoriramverk", "erkännandeteoretiskansats", "participatoriskplaneringsprocess", "biologiskmångfaldsstrategi", "övergödningsåtgärdsprogram", "psykofarmakologiskbehandlingsöversikt"
+  "fisk", "bröd", "katt", "hund", "bord", "stol", "hatt", "vägg", "kudde", "mössa",
+  "jacka", "byxor", "tröja", "skor", "barn", "klocka", "lampa", "spegel", "säng", "regn",
+  "hagel", "storm", "moln", "berg", "skog", "blomma", "gräs", "träd", "buske", "fågel",
+  "groda", "hare", "rävunge", "björn", "älgkalv", "varg", "anka", "vildgås", "tupp", "höna",
+  "gris", "kossa", "näbbmus", "råtta", "ekorre", "igelkott", "kustband", "havsvik", "strand", "sand",
+  "sten", "klippa", "bäck", "fors", "bris", "dimma", "solstråle", "måne", "stjärna", "årstid",
+  "villa", "radhus", "lägenhet", "balkong", "trappa", "källare", "vind", "fönster", "gardin", "dörr",
+  "golv", "takås", "hylla", "soffa", "skåp", "bostadskök", "gryta", "kastrull", "tallrik", "mugg",
+  "kniv", "gaffel", "sked", "skål", "glas", "kanna", "kaffe", "tevatten", "juice", "socker",
+  "mjölk", "grädde", "smör", "hårdost", "kött", "bulgur", "pasta", "potatis", "purjolök", "morot",
+  "tomat", "gurka", "sallad", "äpple", "banan", "päron", "plommon", "citron", "melon", "blåbär",
+  "lingon", "jordgubbe", "körsbär", "druva", "hallon", "krusbär", "avokado", "paprika", "zucchini", "aubergine",
+  "springa", "hoppa", "simma", "klättra", "dansa", "sjunga", "läsa", "skriva", "städa", "laga",
+  "baka", "koka", "steka", "grilla", "lyssna", "tänka", "vänta", "vila", "sova", "vakna",
+  "glad", "ledsen", "snäll", "trött", "pigg", "familj", "vänner", "granne", "semester", "födelsedag"
 ];
