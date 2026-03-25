@@ -111,7 +111,7 @@ function loadLevels(cb) {
   }
   const base = window.location.href.replace(/\/[^/]*$/, "/");
   const script = document.createElement("script");
-  script.src = base + "texts/ordjakt-levels.js?v=3";
+  script.src = base + "texts/ordjakt-levels.js?v=4";
   script.onload = () => {
     levels = (window.ordjaktLevels || []).slice();
     minuteWords = Array.isArray(window.ordjaktMinuteWords)

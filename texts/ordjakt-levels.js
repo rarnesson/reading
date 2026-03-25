@@ -97,22 +97,22 @@ window.ordjaktLevels = [
 ];
 
 /**
- * Minuttest: 150 unika ord. Få ord med 2–3 bokstäver; tät mitt med 5–8 bokstäver; långsamt steg mot lite längre sammansättningar.
+ * Minuttest: 150 unika ord, blandade kategorier (substantiv/verb/adj.) och teman – stigande svårighet.
  */
 window.ordjaktMinuteWords = [
-  "fisk", "bröd", "katt", "hund", "bord", "stol", "hatt", "vägg", "kudde", "mössa",
-  "jacka", "byxor", "tröja", "skor", "barn", "klocka", "lampa", "spegel", "säng", "regn",
-  "hagel", "storm", "moln", "berg", "skog", "blomma", "gräs", "träd", "buske", "fågel",
-  "groda", "hare", "rävunge", "björn", "älgkalv", "varg", "anka", "vildgås", "tupp", "höna",
-  "gris", "kossa", "näbbmus", "råtta", "ekorre", "igelkott", "kustband", "havsvik", "strand", "sand",
-  "sten", "klippa", "bäck", "fors", "bris", "dimma", "solstråle", "måne", "stjärna", "årstid",
-  "villa", "radhus", "lägenhet", "balkong", "trappa", "källare", "vind", "fönster", "gardin", "dörr",
-  "golv", "takås", "hylla", "soffa", "skåp", "bostadskök", "gryta", "kastrull", "tallrik", "mugg",
-  "kniv", "gaffel", "sked", "skål", "glas", "kanna", "kaffe", "tevatten", "juice", "socker",
-  "mjölk", "grädde", "smör", "hårdost", "kött", "bulgur", "pasta", "potatis", "purjolök", "morot",
-  "tomat", "gurka", "sallad", "äpple", "banan", "päron", "plommon", "citron", "melon", "blåbär",
-  "lingon", "jordgubbe", "körsbär", "druva", "hallon", "krusbär", "avokado", "paprika", "zucchini", "aubergine",
-  "springa", "hoppa", "simma", "klättra", "dansa", "sjunga", "läsa", "skriva", "städa", "laga",
-  "baka", "koka", "steka", "grilla", "lyssna", "tänka", "vänta", "vila", "sova", "vakna",
-  "glad", "ledsen", "snäll", "trött", "pigg", "familj", "vänner", "granne", "semester", "födelsedag"
+  "katt", "springa", "glad", "bord", "regn", "läsa", "varm", "skor", "moln", "vila",
+  "hund", "simma", "snäll", "stol", "vind", "skriva", "kall", "hatt", "sand", "lyssna",
+  "fisk", "dansa", "mjuk", "jacka", "berg", "tänka", "hård", "vägg", "buske", "sova",
+  "bröd", "baka", "sötma", "klocka", "träd", "städa", "trött", "spegel", "bäck", "rita",
+  "barn", "hoppa", "pigg", "lampa", "fors", "grilla", "lugn", "säng", "dimma", "minnas",
+  "blomma", "klättra", "surhet", "trappa", "årstid", "vänta", "rödton", "fönster", "stjärna", "drömma",
+  "gris", "steka", "finurlig", "kastrull", "ekorre", "parkera", "falsk", "tallrik", "måne", "vakna",
+  "tomat", "skala", "mogen", "gryta", "fågel", "lyfta", "seghet", "balkong", "villa", "solstråle",
+  "äpple", "koka", "bitter", "morot", "cykel", "dyrbar", "vacker", "radhus", "purjolök", "grädde",
+  "banan", "skära", "väldig", "kanna", "råtta", "sväva", "tveksam", "dörr", "igelkott", "näbbmus",
+  "lingon", "viska", "elak", "zucchini", "hare", "rosta", "stolt", "paprika", "vildgås", "vissla",
+  "jordgubbe", "gnida", "latmask", "avokado", "anka", "sucka", "ärlig", "aubergine", "tupp", "knorra",
+  "semester", "berättelse", "nervös", "födelsedag", "midnatt", "överväga", "bekymrad", "motorcykel", "sparkcykel", "midsommar",
+  "kustband", "förklara", "otydlig", "havsvik", "gryning", "beundra", "nyfiken", "bostadskök", "takås", "norrsken",
+  "hallon", "misstänka", "tystlåten", "körsbär", "krusbär", "erkänna", "förvirrad", "regnbåge", "stormby", "tågstation"
 ];
